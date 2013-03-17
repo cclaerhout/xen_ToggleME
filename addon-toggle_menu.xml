@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.1" version_id="13" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="template_hook" execute_order="10" callback_class="Sedo_ToggleME_Listener" callback_method="template_hook" active="1" description="Listener for templates hooks"/>
+    <listener event_id="template_post_render" execute_order="20" callback_class="Sedo_ToggleME_Listener" callback_method="template_postrender" active="1" description="Listener for templates (post_render)"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <optiongroups>
+    <group group_id="toggleME" display_order="9999" debug_only="0"/>
+    <option option_id="toggleME_Categories_CloseClass_Off" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="230"/>
+    </option>
+    <option option_id="toggleME_DefaultOff_ExtraCat" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="220"/>
+    </option>
+    <option option_id="toggleME_DefaultOff_XenCat" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_nodes</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="210"/>
+    </option>
+    <option option_id="toggleme_effect_duration" edit_format="spinbox" data_type="positive_integer" can_backup="1">
+      <default_value>500</default_value>
+      <edit_format_params>min=5
+step=10</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="1010"/>
+    </option>
+    <option option_id="toggleme_effect_easing" edit_format="select" data_type="string" can_backup="1">
+      <default_value>easeOutQuad</default_value>
+      <edit_format_params>linear=linear
+easeInQuad=easeInQuad
+easeInQuad=easeInQuad
+easeOutQuad=easeOutQuad
+easeInOutQuad=easeInOutQuad
+easeInCubic=easeInCubic
+easeOutCubic=easeOutCubic
+easeInOutCubic=easeInOutCubic
+easeInQuart=easeInQuart
+easeOutQuart=easeOutQuart
+easeInOutQuart=easeInOutQuart
+easeInQuint=easeInQuint
+easeOutQuint=easeOutQuint
+easeInOutQuint=easeInOutQuint
+easeInSine=easeInSine
+easeOutSine=easeOutSine
+easeInOutSine=easeInOutSine
+easeInExpo=easeInExpo
+easeOutExpo=easeOutExpo
+easeInOutExpo=easeInOutExpo
+easeInCirc=easeInCirc
+easeOutCirc=easeOutCirc
+easeInOutCirc=easeInOutCirc
+easeInElastic=easeInElastic
+easeOutElastic=easeOutElastic
+easeInOutElastic=easeInOutElastic
+easeInBack=easeInBack
+easeOutBack=easeOutBack
+easeInOutBack=easeInOutBack
+easeInBounce=easeInBounce
+easeOutBounce=easeOutBounce</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="1000"/>
+    </option>
+    <option option_id="toggleME_enabled" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>true</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="10"/>
+    </option>
+    <option option_id="toggleME_selected_areas" edit_format="checkbox" data_type="array" can_backup="1">
+      <default_value>a:2:{s:15:"node_categories";s:1:"1";s:13:"postbit_extra";b:0;}</default_value>
+      <edit_format_params>node_categories = {xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
+postbit_extra = {xen:phrase option_toggleME_selected_areas_checkbox_postbit_extra}
+node_subforums = {xen:phrase option_toggleME_selected_areas_checkbox_node_subforums}
+widgets =  {xen:phrase option_toggleME_selected_areas_checkbox_widgets}</edit_format_params>
+      <sub_options>node_categories
+postbit_extra
+node_subforums
+widgets</sub_options>
+      <relation group_id="toggleME" display_order="110"/>
+    </option>
+    <option option_id="toggleME_styles" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:1:{i:0;s:1:"1";}</default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_styles</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="100"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Forumhome" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:4:{i:0;s:1:"1";i:1;s:1:"2";i:2;s:1:"3";i:3;s:1:"4";}</default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="200"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="300"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit_State" edit_format="select" data_type="string" can_backup="1">
+      <default_value>closed</default_value>
+      <edit_format_params>closed={xen:phrase toggleme_closed}
+opened={xen:phrase toggleme_opened}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="310"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Widgets" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="500"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Wrapped_Nodes" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="400"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Wrapped_Nodes_OFF" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="410"/>
+    </option>
+    <option option_id="toggleME_Widgets_DefaultOff" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="520"/>
+    </option>
+    <option option_id="toggleME_Widgets_Exclude" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>loginButton,visitorPanel</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="510"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_toggleME" version_id="3" version_string="V.1.2"><![CDATA[ToggleME]]></phrase>
+    <phrase title="option_group_toggleME_description" version_id="3" version_string="V.1.2"><![CDATA[ToggleME options]]></phrase>
+    <phrase title="option_toggleME_Categories_CloseClass_Off" version_id="9" version_string="1.8"><![CDATA[Don't modify the display of my collapsed categories!]]></phrase>
+    <phrase title="option_toggleME_Categories_CloseClass_Off_explain" version_id="9" version_string="1.8"><![CDATA[If you select this option, the display of your categories once collapsed will remain the same, which means the ToggleME Style Properties Options for categories will have no effect.]]></phrase>
+    <phrase title="option_toggleME_DefaultOff_ExtraCat" version_id="7" version_string="1.6.2"><![CDATA[Default Closed EXTRA Categories]]></phrase>
+    <phrase title="option_toggleME_DefaultOff_ExtraCat_explain" version_id="7" version_string="1.6.2"><![CDATA[You can select here to automatically close some Extra Categories, for example the Shoutbox. To perform this operation, you have to find their IDs. The easiest way to do it is to look inside your page html code and find the tag of their Toggle Button. <br /><br />The IDs of these EXTRA categories always use the same following pattern:  <b>_crc_XX-X </b>(X being some numbers)<br /><br />
+If you want to add several Extra Categories IDs, <b> you HAVE to separate each ID with a coma</b>. Example: _crc_36-1,_crc_36-2]]></phrase>
+    <phrase title="option_toggleME_DefaultOff_XenCat" version_id="7" version_string="1.6.2"><![CDATA[Default Closed XenForo Categories]]></phrase>
+    <phrase title="option_toggleME_DefaultOff_XenCat_explain" version_id="7" version_string="1.6.2"><![CDATA[]]></phrase>
+    <phrase title="option_toggleme_effect_duration" version_id="12" version_string="2.01"><![CDATA[Easing duration]]></phrase>
+    <phrase title="option_toggleme_effect_duration_explain" version_id="12" version_string="2.01"><![CDATA[Easing effect duration. Default value: <b>500</b> (milliseconds)]]></phrase>
+    <phrase title="option_toggleme_effect_easing" version_id="12" version_string="2.01"><![CDATA[Easing effect]]></phrase>
+    <phrase title="option_toggleme_effect_easing_explain" version_id="12" version_string="2.01"><![CDATA[Choose which easing effect to use during toggle actions. Here's a <a href="http://www.easings.net" target="_blank">website</a> which might help you to choose . Default value: <b>easeOutQuad</b>.]]></phrase>
+    <phrase title="option_toggleME_enabled" version_id="3" version_string="V.1.2"><![CDATA[Enable toggleME]]></phrase>
+    <phrase title="option_toggleME_enabled_explain" version_id="3" version_string="V.1.2"><![CDATA[Use this to disable toggleME when necessary.]]></phrase>
+    <phrase title="option_toggleME_selected_areas" version_id="3" version_string="V.1.2"><![CDATA[toggleME areas selection]]></phrase>
+    <phrase title="option_toggleME_selected_areas_checkbox_node_categories" version_id="5" version_string="V.1.6"><![CDATA[Node categories in <span style="font-style:italic">forumhome</span>]]></phrase>
+    <phrase title="option_toggleME_selected_areas_checkbox_node_subforums" version_id="5" version_string="V.1.6"><![CDATA[Wrapped Subforums in a forum]]></phrase>
+    <phrase title="option_toggleME_selected_areas_checkbox_postbit_extra" version_id="5" version_string="V.1.6"><![CDATA[User extra information in <span style="font-style:italic">postbit</span>]]></phrase>
+    <phrase title="option_toggleME_selected_areas_checkbox_widgets" version_id="8" version_string="1.7"><![CDATA[Widgets]]></phrase>
+    <phrase title="option_toggleME_selected_areas_explain" version_id="3" version_string="V.1.2"><![CDATA[ToggleME can activate 'expand/collapse' function in different areas of your forum. Select the area(s) where you would like to activate this function.]]></phrase>
+    <phrase title="option_toggleME_styles" version_id="4" version_string="V.1.3"><![CDATA[Styles selection]]></phrase>
+    <phrase title="option_toggleME_styles_explain" version_id="4" version_string="V.1.3"><![CDATA[Select for which styles the toggle function can be enabled]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Forumhome" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Forumhome Area] Usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Forumhome_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function <b>in forumhome</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Postbit Area] Usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_State" version_id="12" version_string="2.01"><![CDATA[[ToggleME Postbit Area] State]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_State_explain" version_id="12" version_string="2.01"><![CDATA[Select if the postbit must be closed by closed or opened by default (default: closed)]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Widgets" version_id="8" version_string="1.7"><![CDATA[[ToggleME Widgets] Usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Widgets_explain" version_id="8" version_string="1.7"><![CDATA[Select which usergroups can use (and see) the  toggle function in  <b>Widgets</b>. <br /><span style="text-decoration:underline">]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Wrapped_Nodes" version_id="5" version_string="V.1.5"><![CDATA[[ToggleME Wrapped Subforums Area] Usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_explain" version_id="5" version_string="V.1.5"><![CDATA[Select which usergroups can use (and see) the  toggle function in  <b>Wrapped Subforums area</b>. <br /><span style="text-decoration:underline">Explanations:</span> if you've got many sub-forums inside a forum, they will appear above the threads. ToggleME will insert this button above them.<br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF" version_id="9" version_string="1.8"><![CDATA[Hide "Wrapped Sub-forums" by default]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF_explain" version_id="9" version_string="1.8"><![CDATA[If you check that options, these sub-forums will be automatically hidden: the user will need to click on the button to display them.]]></phrase>
+    <phrase title="option_toggleME_Widgets_DefaultOff" version_id="8" version_string="1.7"><![CDATA[Default Closed Widgets]]></phrase>
+    <phrase title="option_toggleME_Widgets_DefaultOff_explain" version_id="9" version_string="1.9"><![CDATA[If you want to automatically close a widget when the page is loaded (<span style="text-decoration:underline">providing the user didn't chose to open it during his session</span>), just use this option. Each 'widget name' must be separated with a coma.<br />
+<br />
+To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
+<br />
+<span style="text-decoration:underline;color:orange">Information:</span> Some widgets originally don't have any main class name except "section" (ie: 'Forum Statistics' Widget), which doesn't help very much to target him. To overcome this problem, ToggleMe automatically adds them a generic class name  according to the widget position inside the sidebar. The generic class format is the following one: <b>tglblock_ + page position</b>. <br />
+<br />
+<b>So if you change the widget position and you want it to be closed by default, you will need to come back here because its class name will have changed.</b>.<br />
+<br />
+<span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
+Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>
+    <phrase title="option_toggleME_Widgets_Exclude" version_id="8" version_string="1.7"><![CDATA[Default Exclude Widgets]]></phrase>
+    <phrase title="option_toggleME_Widgets_Exclude_explain" version_id="9" version_string="1.9"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget name' must be separated with a coma.<br />
+<br />
+To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
+<br />
+Option default values for this option: <b>loginButton,visitorPanel</b><br />
+<br />
+<span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
+Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsedDescription_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsedDescription_master" version_id="5" version_string="V.1.5"><![CDATA[Category Strip Collapsed Description]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsedTitle_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsedTitle_master" version_id="5" version_string="V.1.5"><![CDATA[Category Strip Collapsed Title]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsed_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
+    <phrase title="style_property_CategoryStripCollapsed_master" version_id="5" version_string="V.1.5"><![CDATA[Category Strip Collapsed]]></phrase>
+    <phrase title="style_property_group_toggleME_master" version_id="5" version_string="V.1.5"><![CDATA[ToggleME]]></phrase>
+    <phrase title="style_property_group_toggleME_master_desc" version_id="5" version_string="V.1.5"><![CDATA[ToggleME addon options]]></phrase>
+    <phrase title="style_property_secondaryContentCollapsedTitle_description_master" version_id="8" version_string="1.7"><![CDATA[Those values are based on XenForo default CSS '.secondaryContent h3' property (see in the css directly). You might need to update them according to your own style.]]></phrase>
+    <phrase title="style_property_secondaryContentCollapsedTitle_master" version_id="8" version_string="1.7"><![CDATA[Widget Collapsed Title]]></phrase>
+    <phrase title="style_property_secondaryContentCollapsed_description_master" version_id="8" version_string="1.7"><![CDATA[Those values are based on default "secondaryContent" property (from "Building Blocks" menu). You might need to update them according to your own style.]]></phrase>
+    <phrase title="style_property_secondaryContentCollapsed_master" version_id="8" version_string="1.7"><![CDATA[Widget Collapsed]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_active_description_master" version_id="5" version_string="V.1.5"><![CDATA[You can configure here  the expand button design. If you've got many sub-forums inside a forum, they will appear above the threads. ToggleME inserts this button above them.]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_active_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Expand Container]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_active_text_description_master" version_id="5" version_string="V.1.5"><![CDATA[Choose here the font, the color, etc.]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_active_text_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Expand Container text]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_inactive_description_master" version_id="5" version_string="V.1.5"><![CDATA[You can configure here  the collapse button design. If you've got many sub-forums inside a forum, they will appear above the threads. ToggleME inserts this button above them.]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_inactive_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_inactive_text_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglNodelist_forumview_inactive_text_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container text]]></phrase>
+    <phrase title="toggleme_closed" version_id="12" version_string="2.01"><![CDATA[Closed]]></phrase>
+    <phrase title="toggleMe_Collapse" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Hide forums!]]></phrase>
+    <phrase title="toggleMe_Expand" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Display forums!]]></phrase>
+    <phrase title="toggleme_opened" version_id="12" version_string="2.01"><![CDATA[Opened]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties>
+    <property property_name="CategoryStripCollapsed" property_type="css" definition="1" group_name="toggleME" title="Category Strip Collapsed" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="10" sub_group=""><![CDATA[{"background-color":"rgb(237, 234, 230)","background-image":"styles\/default\/xenforo\/gradients\/category-23px-light.png","background-position":"center top","background-repeat":"repeat-x","border-bottom-color":"rgb(196, 196, 196)","border-bottom-left-radius":"5px","border-bottom-right-radius":"5px","border-bottom-style":"solid","border-bottom-width":"1px","border-top-color":"rgb(227, 227, 226)","border-top-left-radius":"5px","border-top-right-radius":"5px","border-top-style":"solid","border-top-width":"1px","color":"rgb(0, 0, 0)","extra":"min-height: 6px;","font-size":"11px","margin-all":"0","padding-bottom":"5px","padding-left":"10px","padding-right":"10px","padding-top":"5px"}]]></property>
+    <property property_name="CategoryStripCollapsedTitle" property_type="css" definition="1" group_name="toggleME" title="Category Strip Collapsed Title" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="20" sub_group=""><![CDATA[{"color":"@contentText","font-size":"10pt"}]]></property>
+    <property property_name="CategoryStripCollapsedDescription" property_type="css" definition="1" group_name="toggleME" title="Category Strip Collapsed Description" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="30" sub_group=""><![CDATA[{"color":"@contentText","font-size":"9pt","font-style":"italic"}]]></property>
+    <property property_name="tglNodelist_forumview_active" property_type="css" definition="1" group_name="toggleME" title="Nodelist Expand Container" description="You can configure here  the expand button design. If you've got many sub-forums inside a forum, they will appear above the threads. ToggleME inserts this button above them." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="40" sub_group=""><![CDATA[{"extra":"text-align: center;\ncursor: pointer;","margin-bottom":"8px"}]]></property>
+    <property property_name="tglNodelist_forumview_inactive" property_type="css" definition="1" group_name="toggleME" title="Nodelist Collapse Container" description="You can configure here  the collapse button design. If you've got many sub-forums inside a forum, they will appear above the threads. ToggleME inserts this button above them." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="50" sub_group=""><![CDATA[{"extra":"text-align: center;\ncursor: pointer;","margin-bottom":"8px"}]]></property>
+    <property property_name="tglNodelist_forumview_active_text" property_type="css" definition="1" group_name="toggleME" title="Nodelist Expand Container text" description="Choose here the font, the color, etc." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="41" sub_group=""><![CDATA[{"background-color":"@primaryMedium","border-color":"@primaryLight","border-radius":"20px","border-style":"solid","border-width":"1px","color":"@textCtrlBackground","extra":"box-shadow: 0px 1px 2px rgba(0,0,0, 0.2);","font-size":"9pt","padding-bottom":"2px","padding-left":"50px","padding-right":"50px","padding-top":"2px"}]]></property>
+    <property property_name="tglNodelist_forumview_inactive_text" property_type="css" definition="1" group_name="toggleME" title="Nodelist Collapse Container text" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="51" sub_group=""><![CDATA[{"background-color":"@secondaryMedium","border-color":"@secondaryLight","border-radius":"20px","border-style":"solid","border-width":"1px","color":"@textCtrlBackground","extra":"box-shadow: 0px 1px 2px rgba(0,0,0, 0.2);","font-size":"9pt","padding-bottom":"2px","padding-left":"50px","padding-right":"50px","padding-top":"2px"}]]></property>
+    <property property_name="secondaryContentCollapsed" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed" description="Those values are based on default &quot;secondaryContent&quot; property (from &quot;Building Blocks&quot; menu). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="60" sub_group=""><![CDATA[{"background-color":"@secondaryLightest","background-image":"@imagePath\/xenforo\/gradients\/category-23px-light.png","background-position":"top","background-repeat":"repeat-x","border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","padding-all":"10px"}]]></property>
+    <property property_name="secondaryContentCollapsedTitle" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed Title" description="Those values are based on XenForo default CSS '.secondaryContent h3' property (see in the css directly). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="61" sub_group=""><![CDATA[{"border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","color":"@secondaryLight","font-size":"12pt","margin-bottom":"5px","padding-bottom":"2px"}]]></property>
+    <group group_name="toggleME" display_order="9999">
+      <title>ToggleME</title>
+      <description>ToggleME addon options</description>
+    </group>
+  </style_properties>
+  <templates>
+    <template title="toggleme_auto.css" version_id="10" version_string="2.0"><![CDATA[/*These CSS must be configured with xenForo Appearance Configuration Tool*/
+.nodeList .CategoryStripCollapsed
+{
+	{xen:property CategoryStripCollapsed}
+}
+
+	.nodeList .CategoryStripCollapsed .nodeTitle
+	{
+		{xen:property CategoryStripCollapsedTitle}
+	}
+	
+		.nodeList .CategoryStripCollapsed .nodeTitle a
+		{
+			color: {xen:property CategoryStripCollapsedTitle.color};
+		}
+
+	.nodeList .CategoryStripCollapsed .nodeDescription
+	{
+		{xen:property CategoryStripCollapsedDescription}
+	}
+	
+		.nodeList .CategoryStripCollapsed .nodeDescription a
+		{
+			color: {xen:property CategoryStripCollapsedDescription.color};
+		}
+.nodeList .tglNodelist_forumview.active
+{
+	{xen:property tglNodelist_forumview_active}
+}
+	.nodeList .tglNodelist_forumview span.toggleME_Collapse
+	{
+		{xen:property tglNodelist_forumview_active_text}
+	}
+.nodeList .tglNodelist_forumview.inactive
+{
+	{xen:property tglNodelist_forumview_inactive}
+}
+	.nodeList .tglNodelist_forumview span.toggleME_Expand
+	{
+		{xen:property tglNodelist_forumview_inactive_text}
+	}
+
+.secondaryContentCollapsed
+{
+	{xen:property secondaryContentCollapsed}
+}
+
+.secondaryContentCollapsed h3
+{
+	{xen:property secondaryContentCollapsedTitle}
+}
+
+.secondaryContentCollapsed h3 a:link, .secondaryContentCollapsed h3 a:visited
+{
+	text-decoration: none;
+	color: {xen:property secondaryContentCollapsedTitle.color};
+	
+}]]></template>
+    <template title="toggleme_manual.css" version_id="10" version_string="2.0"><![CDATA[/*Configure here button for categories with child*/
+.tglWchild.inactive
+{  
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px -16px;
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	cursor: pointer;
+}	
+.tglWchild.active
+{
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px 0px;
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+/*Configure here button for categories without child*/
+.tglNOchild.inactive
+{  
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px -16px;
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	margin-top: -5px;
+	cursor: pointer;
+}	
+.tglNOchild.active
+{
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px 0px;
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	margin-top: -5px;
+	cursor: pointer;
+}
+
+/*Configure here buttons inside postbit */
+.extraUserInfo.toggleHidden
+{
+	display:none;
+}
+
+.tglPosbit.inactive
+{  
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px -16px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}	
+.tglPosbit.active
+{
+	float: right;
+	display: inline;
+	background-image: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png');
+	background-position: 0px 0px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+/*Configure here buttons for sidebar blocks */
+.tglSidebar
+{  
+	float: right;
+}
+
+.tglSidebar.inactive
+{  
+	display:block;
+	background: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png') 0px -16px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+.tglSidebar.active
+{  
+	display:block;
+	background: url('{xen:property imagePath}/xenforo/widgets/toggle-sprite.png') 0px 0px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}]]></template>
+    <template title="toggleme_page_container_js" version_id="12" version_string="2.01"><![CDATA[<xen:require css="toggleme_auto.css" />
+<xen:require css="toggleme_manual.css" />
+<xen:require js="js/sedo/toggleme/toggleME.js?{$toggleme_js_version}" />
+]]></template>
+  </templates>
+  <bb_code_media_sites/>
+  <template_modifications/>
+</addon>
