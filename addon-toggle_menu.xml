@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.1" version_id="13" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.1.1" version_id="14" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
   <admin_templates/>
+  <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="template_hook" execute_order="10" callback_class="Sedo_ToggleME_Listener" callback_method="template_hook" active="1" description="Listener for templates hooks"/>
-    <listener event_id="template_post_render" execute_order="20" callback_class="Sedo_ToggleME_Listener" callback_method="template_postrender" active="1" description="Listener for templates (post_render)"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="Sedo_ToggleME_Listener" callback_method="template_hook" active="1" hint="" description="Listener for templates hooks"/>
+    <listener event_id="template_post_render" execute_order="20" callback_class="Sedo_ToggleME_Listener" callback_method="template_postrender" active="1" hint="" description="Listener for templates (post_render)"/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
+  <email_template_modifications/>
   <optiongroups>
     <group group_id="toggleME" display_order="9999" debug_only="0"/>
     <option option_id="toggleME_Categories_CloseClass_Off" edit_format="onoff" data_type="boolean" can_backup="1">
@@ -30,73 +32,6 @@
       <edit_format_params>Sedo_ToggleME_Option_Factory::render_nodes</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="toggleME" display_order="210"/>
-    </option>
-    <option option_id="toggleme_effect_duration" edit_format="spinbox" data_type="positive_integer" can_backup="1">
-      <default_value>500</default_value>
-      <edit_format_params>min=5
-step=10</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="toggleME" display_order="1010"/>
-    </option>
-    <option option_id="toggleme_effect_easing" edit_format="select" data_type="string" can_backup="1">
-      <default_value>easeOutQuad</default_value>
-      <edit_format_params>linear=linear
-easeInQuad=easeInQuad
-easeInQuad=easeInQuad
-easeOutQuad=easeOutQuad
-easeInOutQuad=easeInOutQuad
-easeInCubic=easeInCubic
-easeOutCubic=easeOutCubic
-easeInOutCubic=easeInOutCubic
-easeInQuart=easeInQuart
-easeOutQuart=easeOutQuart
-easeInOutQuart=easeInOutQuart
-easeInQuint=easeInQuint
-easeOutQuint=easeOutQuint
-easeInOutQuint=easeInOutQuint
-easeInSine=easeInSine
-easeOutSine=easeOutSine
-easeInOutSine=easeInOutSine
-easeInExpo=easeInExpo
-easeOutExpo=easeOutExpo
-easeInOutExpo=easeInOutExpo
-easeInCirc=easeInCirc
-easeOutCirc=easeOutCirc
-easeInOutCirc=easeInOutCirc
-easeInElastic=easeInElastic
-easeOutElastic=easeOutElastic
-easeInOutElastic=easeInOutElastic
-easeInBack=easeInBack
-easeOutBack=easeOutBack
-easeInOutBack=easeInOutBack
-easeInBounce=easeInBounce
-easeOutBounce=easeOutBounce</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="toggleME" display_order="1000"/>
-    </option>
-    <option option_id="toggleME_enabled" edit_format="onoff" data_type="boolean" can_backup="1">
-      <default_value>true</default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="toggleME" display_order="10"/>
-    </option>
-    <option option_id="toggleME_selected_areas" edit_format="checkbox" data_type="array" can_backup="1">
-      <default_value>a:2:{s:15:"node_categories";s:1:"1";s:13:"postbit_extra";b:0;}</default_value>
-      <edit_format_params>node_categories = {xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
-postbit_extra = {xen:phrase option_toggleME_selected_areas_checkbox_postbit_extra}
-node_subforums = {xen:phrase option_toggleME_selected_areas_checkbox_node_subforums}
-widgets =  {xen:phrase option_toggleME_selected_areas_checkbox_widgets}</edit_format_params>
-      <sub_options>node_categories
-postbit_extra
-node_subforums
-widgets</sub_options>
-      <relation group_id="toggleME" display_order="110"/>
-    </option>
-    <option option_id="toggleME_styles" edit_format="callback" data_type="array" can_backup="1">
-      <default_value>a:1:{i:0;s:1:"1";}</default_value>
-      <edit_format_params>Sedo_ToggleME_Option_Factory::render_styles</edit_format_params>
-      <sub_options>*</sub_options>
-      <relation group_id="toggleME" display_order="100"/>
     </option>
     <option option_id="toggleME_Usergroups_Forumhome" edit_format="callback" data_type="array" can_backup="1">
       <default_value>a:4:{i:0;s:1:"1";i:1;s:1:"2";i:2;s:1:"3";i:3;s:1:"4";}</default_value>
@@ -146,6 +81,73 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="510"/>
+    </option>
+    <option option_id="toggleME_enabled" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>true</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="10"/>
+    </option>
+    <option option_id="toggleME_selected_areas" edit_format="checkbox" data_type="array" can_backup="1">
+      <default_value>a:2:{s:15:"node_categories";s:1:"1";s:13:"postbit_extra";b:0;}</default_value>
+      <edit_format_params>node_categories = {xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
+postbit_extra = {xen:phrase option_toggleME_selected_areas_checkbox_postbit_extra}
+node_subforums = {xen:phrase option_toggleME_selected_areas_checkbox_node_subforums}
+widgets =  {xen:phrase option_toggleME_selected_areas_checkbox_widgets}</edit_format_params>
+      <sub_options>node_categories
+postbit_extra
+node_subforums
+widgets</sub_options>
+      <relation group_id="toggleME" display_order="110"/>
+    </option>
+    <option option_id="toggleME_styles" edit_format="callback" data_type="array" can_backup="1">
+      <default_value>a:1:{i:0;s:1:"1";}</default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_styles</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="100"/>
+    </option>
+    <option option_id="toggleme_effect_duration" edit_format="spinbox" data_type="positive_integer" can_backup="1">
+      <default_value>500</default_value>
+      <edit_format_params>min=5
+step=10</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="1010"/>
+    </option>
+    <option option_id="toggleme_effect_easing" edit_format="select" data_type="string" can_backup="1">
+      <default_value>easeOutQuad</default_value>
+      <edit_format_params>linear=linear
+easeInQuad=easeInQuad
+easeInQuad=easeInQuad
+easeOutQuad=easeOutQuad
+easeInOutQuad=easeInOutQuad
+easeInCubic=easeInCubic
+easeOutCubic=easeOutCubic
+easeInOutCubic=easeInOutCubic
+easeInQuart=easeInQuart
+easeOutQuart=easeOutQuart
+easeInOutQuart=easeInOutQuart
+easeInQuint=easeInQuint
+easeOutQuint=easeOutQuint
+easeInOutQuint=easeInOutQuint
+easeInSine=easeInSine
+easeOutSine=easeOutSine
+easeInOutSine=easeInOutSine
+easeInExpo=easeInExpo
+easeOutExpo=easeOutExpo
+easeInOutExpo=easeInOutExpo
+easeInCirc=easeInCirc
+easeOutCirc=easeOutCirc
+easeInOutCirc=easeInOutCirc
+easeInElastic=easeInElastic
+easeOutElastic=easeOutElastic
+easeInOutElastic=easeInOutElastic
+easeInBack=easeInBack
+easeOutBack=easeOutBack
+easeInOutBack=easeInOutBack
+easeInBounce=easeInBounce
+easeOutBounce=easeOutBounce</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="1000"/>
     </option>
   </optiongroups>
   <permissions>
@@ -251,7 +253,8 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     </group>
   </style_properties>
   <templates>
-    <template title="toggleme_auto.css" version_id="10" version_string="2.0"><![CDATA[/*These CSS must be configured with xenForo Appearance Configuration Tool*/
+    <template title="toggleme_auto.css" version_id="13" version_string="2.1"><![CDATA[<xen:comment>These CSS must be configured with xenForo Appearance Configuration Tool</xen:comment>
+
 .nodeList .CategoryStripCollapsed
 {
 	{xen:property CategoryStripCollapsed}
@@ -307,7 +310,6 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 {
 	text-decoration: none;
 	color: {xen:property secondaryContentCollapsedTitle.color};
-	
 }]]></template>
     <template title="toggleme_manual.css" version_id="10" version_string="2.0"><![CDATA[/*Configure here button for categories with child*/
 .tglWchild.inactive
@@ -414,6 +416,11 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 <xen:require js="js/sedo/toggleme/toggleME.js?{$toggleme_js_version}" />
 ]]></template>
   </templates>
+  <public_template_modifications>
+    <modification template="node_category_level_1" modification_key="toggleme_hasnew_category" description="Add css class to a category is it has new message" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip">]]></find>
+      <replace><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip {xen:if $category.hasNew, 'hasNew'}">]]></replace>
+    </modification>
+  </public_template_modifications>
   <bb_code_media_sites/>
-  <template_modifications/>
 </addon>
