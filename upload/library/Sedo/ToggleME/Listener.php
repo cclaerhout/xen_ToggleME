@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.1
+// Last modified: version 2.1.2
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -38,7 +38,7 @@ class Sedo_ToggleME_Listener
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');
 				
-				if(empty($perms['toggle_forumhome_usr']) && !$options->toggleME_selected_areas['node_categories'])
+				if(empty($perms['toggle_forumhome_usr']) || !$options->toggleME_selected_areas['node_categories'])
 				{
 					break;
 				}
@@ -94,7 +94,7 @@ class Sedo_ToggleME_Listener
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');
 				
-				if(empty($perms['toggle_postbit_usr']) && !$options->toggleME_selected_areas['postbit_extra'])
+				if(empty($perms['toggle_postbit_usr']) || !$options->toggleME_selected_areas['postbit_extra'])
 				{
 					break;
 				}
@@ -112,7 +112,7 @@ class Sedo_ToggleME_Listener
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');	
 
-				if(empty($perms['toggle_widgets_usr']) && !$options->toggleME_selected_areas['widgets'])
+				if(empty($perms['toggle_widgets_usr']) || !$options->toggleME_selected_areas['widgets'])
 				{
 					break;
 				}
@@ -288,7 +288,7 @@ class Sedo_ToggleME_Listener
 				$options = XenForo_Application::get('options');	
 				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? '' : 'toggleHidden';
 			
-				if($perms['toggle_postbit_usr'] && $options->toggleME_selected_areas['postbit_extra'])
+				if($perms['toggle_postbit_usr'] || $options->toggleME_selected_areas['postbit_extra'])
 				{
 					$content = str_replace('<div class="extraUserInfo">', "<div class=\"extraUserInfo $state\">", $content);
 				}
@@ -298,7 +298,7 @@ class Sedo_ToggleME_Listener
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');	
 			
-				if(!$perms['toggle_wrappednoded_usr'] && !$options->toggleME_selected_areas['node_subforums'])
+				if(!$perms['toggle_wrappednoded_usr'] || !$options->toggleME_selected_areas['node_subforums'])
 				{
 					break;
 				}
@@ -333,7 +333,7 @@ class Sedo_ToggleME_Listener
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');
 			
-				if(!$perms['toggle_forumhome_usr'] && !$options->toggleME_selected_areas['node_categories'])
+				if(!$perms['toggle_forumhome_usr'] || !$options->toggleME_selected_areas['node_categories'])
 				{
 					break;
 				}
@@ -376,11 +376,13 @@ class Sedo_ToggleME_Listener
 		$options = XenForo_Application::get('options');
 
 		//Init perms
-		$perms['toggle_forumhome_usr'] = false;
-		$perms['toggle_postbit_usr'] = false;
-		$perms['toggle_widgets_usr'] = false;
-		$perms['toggle_wrappednoded_usr'] = false;
-		$perms['quickCheck'] = false;
+		$perms = array(
+			'toggle_forumhome_usr' => false,
+			'toggle_postbit_usr' => false,
+			'toggle_widgets_usr' => false,
+			'toggle_wrappednoded_usr' => false,
+			'quickCheck' => false
+		);
 
 		if (empty($options->toggleME_enabled))
 	  	{
@@ -408,25 +410,28 @@ class Sedo_ToggleME_Listener
 			$perms['toggle_forumhome_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
+		
 		if($options->toggleME_selected_areas['postbit_extra'])
 		{
 			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Postbit);
 			$perms['toggle_postbit_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
+		
 		if($options->toggleME_selected_areas['widgets'])
 		{
 			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Widgets);
 			$perms['toggle_widgets_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}		
+		
 		if($options->toggleME_selected_areas['node_subforums'])
 		{
 			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Wrapped_Nodes);
 			$perms['toggle_wrappednoded_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
-		
+
  		return $perms;
 	}	
 }
