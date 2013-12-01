@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.1.2" version_id="15" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.2" version_id="16" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -44,6 +44,19 @@
       <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="toggleME" display_order="300"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit_ForceOpenState" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="350"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit_Position" edit_format="select" data_type="string" can_backup="1">
+      <default_value>classic</default_value>
+      <edit_format_params>classic={xen:phrase toggleme_postbit_toggler_userinfo_top_right}
+abvextra={xen:phrase toggleme_postbit_toggler_extrainfo_above}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="320"/>
     </option>
     <option option_id="toggleME_Usergroups_Postbit_State" edit_format="select" data_type="string" can_backup="1">
       <default_value>closed</default_value>
@@ -183,6 +196,10 @@ If you want to add several Extra Categories IDs, <b> you HAVE to separate each I
     <phrase title="option_toggleME_Usergroups_Forumhome_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function <b>in forumhome</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Postbit Area] Usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Visible Extra Information for these usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState_explain" version_id="14" version_string="2.1.1"><![CDATA[This option will make the users extra information for the selected usergroups.]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_Position" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Toggle Button Position]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_Position_explain" version_id="14" version_string="2.1.1"><![CDATA[Use this option to modify the position of the Toggle Button inside the postbit. Default : "Basic User Information - top right".]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_State" version_id="12" version_string="2.01"><![CDATA[[ToggleME Postbit Area] State]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_State_explain" version_id="12" version_string="2.01"><![CDATA[Select if the postbit must be closed by closed or opened by default (default: closed)]]></phrase>
     <phrase title="option_toggleME_Usergroups_Widgets" version_id="8" version_string="1.7"><![CDATA[[ToggleME Widgets] Usergroups]]></phrase>
@@ -235,6 +252,8 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     <phrase title="toggleMe_Collapse" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Hide forums!]]></phrase>
     <phrase title="toggleMe_Expand" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Display forums!]]></phrase>
     <phrase title="toggleme_opened" version_id="12" version_string="2.01"><![CDATA[Opened]]></phrase>
+    <phrase title="toggleme_postbit_toggler_extrainfo_above" version_id="14" version_string="2.1.1"><![CDATA[Extra User Information - above (top right)]]></phrase>
+    <phrase title="toggleme_postbit_toggler_userinfo_top_right" version_id="14" version_string="2.1.1"><![CDATA[Basic User Information - top right (classic)]]></phrase>
   </phrases>
   <route_prefixes/>
   <style_properties>
@@ -311,7 +330,7 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 	text-decoration: none;
 	color: {xen:property secondaryContentCollapsedTitle.color};
 }]]></template>
-    <template title="toggleme_manual.css" version_id="10" version_string="2.0"><![CDATA[/*Configure here button for categories with child*/
+    <template title="toggleme_manual.css" version_id="14" version_string="2.1.1"><![CDATA[/*Configure here button for categories with child*/
 .tglWchild.inactive
 {  
 	float: right;
@@ -362,6 +381,13 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 }
 
 /*Configure here buttons inside postbit */
+.tglPosbit.pos_abvextra
+{
+	position: relative;
+	bottom: 4px;
+	right: -2px;
+}
+
 .extraUserInfo.toggleHidden
 {
 	display:none;

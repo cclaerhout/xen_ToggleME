@@ -1,6 +1,6 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 2.1*/
+	/*ToggleME 2.2*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
@@ -59,8 +59,9 @@
 		},
 		initPostbit: function($element)
 		{
-			var t = XenForo.ToggleME;
-			$tglPostbit = $element.find('.tglPosbit');
+			var t = XenForo.ToggleME,
+				$tglPostbit = $element.find('.tglPosbit'),
+				$extraUserInfo = $element.find('.extraUserInfo');
 
 			//Init Effects
 			t.initEffects();
@@ -79,24 +80,25 @@
       			*/
 			
 			function open($el) {
-				$el.parents('.messageUserBlock').find('.extraUserInfo').slideDown(t.d, t.e);
+				var currentExtraInfo = $el.parents('.messageUserBlock').find('.extraUserInfo');
+				currentExtraInfo.slideDown(t.d, t.e).removeClass('toggleHidden');
       				$el.removeClass('inactive').addClass("active");			
 			}
 			
 			function close($el) {
-				$el.parents('.messageUserBlock').find('.extraUserInfo').slideUp(t.d, t.e);
+				var currentExtraInfo = $el.parents('.messageUserBlock').find('.extraUserInfo');
+				currentExtraInfo.slideUp(t.d, t.e).addClass('toggleHidden');
 				$el.removeClass('active').addClass("inactive");			
 			}
 
 			if(XenForo.toogleMeConfig.postbit_state === 0){
-
-				$tglPostbit.addClass("inactive");
-				$element.find('.extraUserInfo').hide();
-	      			$element.find('.tglPosbit').toggle(function () { open($(this)); }, function () { close($(this)); });
-			}
-			else{
-				$tglPostbit.addClass("active");
-	      			$element.find('.tglPosbit').toggle(function () { close($(this)); }, function () { open($(this)); });
+				$extraUserInfo.hide();
+				$tglPostbit.addClass("inactive")
+					.toggle(function () { open($(this)); }, function () { close($(this)); });
+			}else{
+				$extraUserInfo.show();
+	      			$tglPostbit.addClass("active")
+	      				.toggle(function () { close($(this)); }, function () { open($(this)); });
 			}
 		},
 		bakeCookie: function(cname, ccat, cval) 

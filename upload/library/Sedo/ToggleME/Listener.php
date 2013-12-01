@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.1.2
+// Last modified: version 2.2
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -11,6 +11,11 @@ class Sedo_ToggleME_Listener
 				$easing = $options->toggleme_effect_easing;
 				$duration = $options->toggleme_effect_duration;
 				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? 1 : 0;
+				
+				if(self::forcePostbitExtraInfoDisplay())
+				{
+					$state = 1;
+				}
 		
 				$search = '#(\s+)(_ignoredUsers:)#i';
 				$replace = "$1toogleMeConfig:{ effect: \"$easing\", duration: $duration, postbit_state: $state },$1$2";
@@ -93,15 +98,22 @@ class Sedo_ToggleME_Listener
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');
+				$position = $options->toggleME_Usergroups_Postbit_Position;
 				
 				if(empty($perms['toggle_postbit_usr']) || !$options->toggleME_selected_areas['postbit_extra'])
 				{
 					break;
 				}
 
-				$search = '#(<h3 class="userText">)#i';
-				$replace = '$1<div class="tglPosbit"></div>';
-			
+				$search = '#<h3 class="userText">#i';
+				
+				if($position == 'abvextra')
+				{
+					$search = '#<a[^>]+?class="username"[^>]+?>.*?</a>#i';
+				}
+
+				$replace = "$0<div class='tglPosbit pos_$position'></div>";
+				
 				$contents = preg_replace($search, $replace, $contents);	
 				break;				
 
@@ -283,10 +295,16 @@ class Sedo_ToggleME_Listener
 		{
 			case 'thread_view':
 			case 'conversation_view':
+				//This part could be deleted but let's keep this if admins want to use css to customize the hidden postbit
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');	
 				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? '' : 'toggleHidden';
+
+				if(self::forcePostbitExtraInfoDisplay($perms['visitorUserGroupIds']))
+				{
+					$state = '';
+				}
 			
 				if($perms['toggle_postbit_usr'] || $options->toggleME_selected_areas['postbit_extra'])
 				{
@@ -403,6 +421,7 @@ class Sedo_ToggleME_Listener
 		//Users permissions (not empty if access granted)
 		$visitor = XenForo_Visitor::getInstance();
 		$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+		$perms['visitorUserGroupIds'] = $visitorUserGroupIds;
 
 		if($options->toggleME_selected_areas['node_categories'])
 		{
@@ -431,8 +450,19 @@ class Sedo_ToggleME_Listener
 			$perms['toggle_wrappednoded_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
-
- 		return $perms;
+		
+		return $perms;
+	}
+	
+	public static function forcePostbitExtraInfoDisplay($visitorUserGroupIds = false)
+	{
+		if(!$visitorUserGroupIds)
+		{
+			$visitor = XenForo_Visitor::getInstance();
+			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+		}
+		
+		return (array_intersect($visitorUserGroupIds, XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState'))) ? true : false;
 	}	
 }
 /*
