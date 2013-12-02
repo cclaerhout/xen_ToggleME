@@ -462,7 +462,14 @@ class Sedo_ToggleME_Listener
 			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
 		}
 		
-		return (array_intersect($visitorUserGroupIds, XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState'))) ? true : false;
+		$validUserGroups =  XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState');
+		
+		if(!is_array($validUserGroups))
+		{
+			$validUserGroups = array();
+		}
+		
+		return (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
 	}	
 }
 /*
