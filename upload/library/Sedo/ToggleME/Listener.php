@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.2
+// Last modified: version 2.2.2
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -301,7 +301,7 @@ class Sedo_ToggleME_Listener
 				$options = XenForo_Application::get('options');	
 				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? '' : 'toggleHidden';
 
-				if(self::forcePostbitExtraInfoDisplay($perms['visitorUserGroupIds']))
+				if(self::forcePostbitExtraInfoDisplay($perms))
 				{
 					$state = '';
 				}
@@ -399,7 +399,8 @@ class Sedo_ToggleME_Listener
 			'toggle_postbit_usr' => false,
 			'toggle_widgets_usr' => false,
 			'toggle_wrappednoded_usr' => false,
-			'quickCheck' => false
+			'quickCheck' => false,
+			'visitorUserGroupIds' => false
 		);
 
 		if (empty($options->toggleME_enabled))
@@ -454,9 +455,13 @@ class Sedo_ToggleME_Listener
 		return $perms;
 	}
 	
-	public static function forcePostbitExtraInfoDisplay($visitorUserGroupIds = false)
+	public static function forcePostbitExtraInfoDisplay($perms = false)
 	{
-		if(!$visitorUserGroupIds)
+		if(isset($perms['visitorUserGroupIds']))
+		{
+			$visitorUserGroupIds = $perms['visitorUserGroupIds'];
+		}
+		else
 		{
 			$visitor = XenForo_Visitor::getInstance();
 			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
@@ -464,9 +469,9 @@ class Sedo_ToggleME_Listener
 		
 		$validUserGroups =  XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState');
 		
-		if(!is_array($validUserGroups))
+		if(!$validUserGroups)
 		{
-			$validUserGroups = array();
+			return false;
 		}
 		
 		return (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
