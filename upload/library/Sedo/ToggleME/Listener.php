@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.2.2
+// Last modified: version 2.2.3
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -469,7 +469,7 @@ class Sedo_ToggleME_Listener
 		
 		$validUserGroups =  XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState');
 		
-		if(!$validUserGroups)
+		if(!$validUserGroups || !in_array($validUserGroups))
 		{
 			return false;
 		}
