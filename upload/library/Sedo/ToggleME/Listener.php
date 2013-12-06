@@ -469,7 +469,7 @@ class Sedo_ToggleME_Listener
 		
 		$validUserGroups =  XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState');
 		
-		if(!$validUserGroups || !in_array($validUserGroups))
+		if(!$validUserGroups || !is_array($validUserGroups))
 		{
 			return false;
 		}
