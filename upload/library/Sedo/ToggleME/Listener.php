@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.2.3
+// Last modified: version 2.2.4
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -457,7 +457,7 @@ class Sedo_ToggleME_Listener
 	
 	public static function forcePostbitExtraInfoDisplay($perms = false)
 	{
-		if(isset($perms['visitorUserGroupIds']))
+		if(!empty($perms['visitorUserGroupIds']))
 		{
 			$visitorUserGroupIds = $perms['visitorUserGroupIds'];
 		}
