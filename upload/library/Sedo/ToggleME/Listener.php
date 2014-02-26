@@ -87,15 +87,19 @@ class Sedo_ToggleME_Listener
 						$userBrowserLanguage = self::getClientPreferedLanguage();
 						$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
 	
-						if(isset($languageCategories[$userBrowserLanguage]))
+						if(!isset($languageCategories[$userBrowserLanguage]))
+						{
+							$languageCategoriesToKeepOpen = array();
+						}
+						else
 						{
 							$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
 							unset($languageCategories[$userBrowserLanguage]);
-	
-							foreach($languageCategories as $tempCats)
-							{
-								$closed_cats = array_merge($closed_cats , $tempCats);
-							}
+						}	
+
+						foreach($languageCategories as $tempCats)
+						{
+							$closed_cats = array_merge($closed_cats , $tempCats);
 						}
 					}
 
@@ -375,34 +379,34 @@ class Sedo_ToggleME_Listener
 
 					if(!isset($languageCategories[$userBrowserLanguage]))
 					{
-						$langCheck = false;
+						$languageCategoriesToKeepOpen = array();
 					}
 					else
 					{
 						$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
 						unset($languageCategories[$userBrowserLanguage]);
+					}
 
-						$languageCategoriesToClose = array();
-						foreach($languageCategories as $tempCats)
+					$languageCategoriesToClose = array();
+					foreach($languageCategories as $tempCats)
+					{
+						$languageCategoriesToClose = array_merge($languageCategoriesToClose, $tempCats);
+					}
+						
+					$languageCategoriesToClose = array_diff($languageCategoriesToClose, $languageCategoriesToKeepOpen); 
+						
+					$langCloseAllCategories = Sedo_ToggleME_Helper_CustomLanguage::closeAllCategories();
+
+					if(is_array($langCloseAllCategories))
+					{
+						if(!empty($langCloseAllCategories))
 						{
-							$languageCategoriesToClose = array_merge($languageCategoriesToClose, $tempCats);
+							$languageCategoriesToKeepOpen = array_merge($languageCategoriesToKeepOpen, $langCloseAllCategories);
+							$langCloseAllCategories = true;
 						}
-						
-						$languageCategoriesToClose = array_diff($languageCategoriesToClose, $languageCategoriesToKeepOpen); 
-						
-						$langCloseAllCategories = Sedo_ToggleME_Helper_CustomLanguage::closeAllCategories();
-
-						if(is_array($langCloseAllCategories))
+						else
 						{
-							if(!empty($langCloseAllCategories))
-							{
-								$languageCategoriesToKeepOpen = array_merge($languageCategoriesToKeepOpen, $langCloseAllCategories);
-								$langCloseAllCategories = true;
-							}
-							else
-							{
-								$langCloseAllCategories = false;							
-							}
+							$langCloseAllCategories = false;							
 						}
 					}
 				}

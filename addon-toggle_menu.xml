@@ -314,7 +314,10 @@ If you want to add several Extra Categories IDs, <b> you HAVE to separate each I
     <phrase title="option_toggleME_enabled" version_id="3" version_string="V.1.2"><![CDATA[Enable toggleME]]></phrase>
     <phrase title="option_toggleME_enabled_explain" version_id="3" version_string="V.1.2"><![CDATA[Use this to disable toggleME when necessary.]]></phrase>
     <phrase title="option_toggleME_lang_cat_config" version_id="21" version_string="2.2.5"><![CDATA[Categories - Configuration]]></phrase>
-    <phrase title="option_toggleME_lang_cat_config_explain" version_id="21" version_string="2.2.5"><![CDATA[The logic is simple, if the user language is found inside this configuration, then the categories of his language will be opened and the ones of other languages will be closed; providing he didn't choose to open/close them (cookie memory).<br/>
+    <phrase title="option_toggleME_lang_cat_config_explain" version_id="23" version_string="2.3.0"><![CDATA[The logic is simple, if the user language is found inside this configuration, then the categories of his language will be opened and the ones of other languages will be closed; providing the user didn't choose to open/close them (cookie memory).<br/>
+<br/>
+When you select a category in this configuration, it become then a "language category". Which means if the user language is not found, it will be closed. So if you set an undefined language code (ie: "default"), all the categories in it will be closed unless they are found in another language configuration and this language configuration matches the user language information.
+<br/><br/>
 To delete a configuration, just delete its language code and save.]]></phrase>
     <phrase title="option_toggleME_lang_cat_enable" version_id="21" version_string="2.2.5"><![CDATA[Categories by language - Enable]]></phrase>
     <phrase title="option_toggleME_lang_cat_enable_explain" version_id="21" version_string="2.2.5"><![CDATA[Enable to automatically toggle some categories by user language? P.S: </br>
