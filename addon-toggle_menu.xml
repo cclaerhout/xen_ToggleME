@@ -1,9 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.2.5" version_id="21" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.3.0" version_id="23" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
-  <admin_templates/>
+  <admin_templates>
+    <template title="option_toggleme_language_categories"><![CDATA[<xen:require css="option_toggleme_language_categories.css" />
+<xen:include template="option_toggleme_language_categories_js" />
+
+<xen:controlunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	<xen:html>
+		<ul>
+			<xen:foreach loop="$configs" key="$counter" value="$config" i="$i">
+			<li class="config_unit">
+				<dl class="ctrlUnit quoteme_langcode">
+					<dt><label>[<b>{$config.lang}</b>] {xen:phrase toggleme_langcat_title}</label></dt>
+					<dd><xen:textbox 
+						name="{$fieldPrefix}[{$preparedOption.option_id}][{$counter}][lang]"
+						value="{$config.lang}"
+						placeholder="{xen:phrase toggleme_langcat_code}" 
+						size="10"
+					/></dd>
+				</dl>
+				<xen:checkboxunit label="{xen:phrase toggleme_langcat_catselec}" class="quoteme_langcat"
+					name="{$fieldPrefix}[{$preparedOption.option_id}][{$counter}][nodes]" value="{$config.nodes.value}">	
+					<xen:options source="{$config.nodes}" raw="true" />
+				</xen:checkboxunit>
+			</li>
+			</xen:foreach>
+			
+			<li class="ToogleMeOptionListener config_unit_new">
+				<dl class="ctrlUnit quoteme_langcode">
+					<dt><label>{xen:phrase toggleme_langcat_title}</label></dt>
+					<dd><xen:textbox 
+						name="{$fieldPrefix}[{$preparedOption.option_id}][{$nextCounter}][lang]"
+						value="{$config.lang}"
+						placeholder="{xen:phrase toggleme_langcat_code}"
+						size="10"
+					/></dd>
+				</dl>
+				<xen:checkboxunit label="{xen:phrase toggleme_langcat_catselec}" class="quoteme_langcat"
+					name="{$fieldPrefix}[{$preparedOption.option_id}][{$nextCounter}][nodes]" value="">
+					<xen:foreach loop="$nodes" value="$node">
+						<xen:option value="{$node.value}" label="{$node.label}" />
+					</xen:foreach>
+				</xen:checkboxunit>
+			</li>
+		</ul>
+		
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+		{xen:raw $editLink}
+	</xen:html>
+</xen:controlunit>]]></template>
+    <template title="option_toggleme_language_categories.css"><![CDATA[.config_unit {
+	{xen:property secondaryContent.background};
+	padding: 8px;
+}
+
+.config_unit_new {
+	{xen:property subHeading.background};
+	padding: 8px;
+}]]></template>
+    <template title="option_toggleme_language_categories_js"><![CDATA[<script type="text/javascript">
+/** @param {jQuery} $ jQuery Object */
+!function($, window, document, _undefined)
+{
+	XenForo.ToogleMeOptionListener = function($element) { this.__construct($element); };
+	XenForo.ToogleMeOptionListener.prototype =
+	{
+		__construct: function($element)
+		{
+			$element.one('keypress', $.context(this, 'createChoice'));
+			$element.find('input[type=checkbox]').attr('checked', false);
+			$element.find('input[type=text]').val('');
+
+			this.$element = $element;
+			if (!this.$base){
+				this.$base = $element.clone();
+			}
+		},
+		createChoice: function()
+		{
+			var $new = this.$base.clone(),
+				nextCounter = this.$element.parent().children().length + 1; //Add 1
+
+			$new.find('input[name], select[name]').each(function(){
+				var $this = $(this);
+				$this.attr('name', $this.attr('name').replace(/\[(\d+)\]/, '[' + nextCounter + ']'));
+			});
+
+			$new.find('*[id]').each(function(){
+				var $this = $(this);
+				$this.removeAttr('id');
+				
+				var uniqId = XenForo.uniqueId($this);
+				$this.parent().attr('for', uniqId);
+
+				if (XenForo.formCtrl){
+					XenForo.formCtrl.clean($this);
+				}
+			});
+
+			$new.xfInsert('insertAfter', this.$element);
+			this.__construct($new);
+		}
+	};
+
+	XenForo.register('li.ToogleMeOptionListener', 'XenForo.ToogleMeOptionListener');
+}
+(jQuery, this, document);
+</script>]]></template>
+  </admin_templates>
   <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
@@ -14,7 +121,8 @@
   <email_templates/>
   <email_template_modifications/>
   <optiongroups>
-    <group group_id="toggleME" display_order="9999" debug_only="0"/>
+    <group group_id="toggleME" display_order="12100" debug_only="0"/>
+    <group group_id="toggleME_Language" display_order="12101" debug_only="0"/>
     <option option_id="toggleME_Categories_CloseClass_Off" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -101,6 +209,25 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="10"/>
     </option>
+    <option option_id="toggleME_lang_cat_config" edit_format="callback" data_type="array" can_backup="1" validation_class="Sedo_ToggleME_Option_Factory" validation_method="verify_lang_nodes">
+      <default_value>a:0:{}</default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_lang_nodes</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME_Language" display_order="50"/>
+    </option>
+    <option option_id="toggleME_lang_cat_enable" edit_format="select" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>0={xen:phrase no}
+1={xen:phrase yes}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME_Language" display_order="10"/>
+    </option>
+    <option option_id="toggleME_lang_cat_fullcode" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME_Language" display_order="20"/>
+    </option>
     <option option_id="toggleME_selected_areas" edit_format="checkbox" data_type="array" can_backup="1">
       <default_value>a:2:{s:15:"node_categories";s:1:"1";s:13:"postbit_extra";b:0;}</default_value>
       <edit_format_params>node_categories = {xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
@@ -171,6 +298,8 @@ easeOutBounce=easeOutBounce</edit_format_params>
   <phrases>
     <phrase title="option_group_toggleME" version_id="3" version_string="V.1.2"><![CDATA[ToggleME]]></phrase>
     <phrase title="option_group_toggleME_description" version_id="3" version_string="V.1.2"><![CDATA[ToggleME options]]></phrase>
+    <phrase title="option_group_toggleME_Language" version_id="21" version_string="2.2.5"><![CDATA[ToggleME by Languages]]></phrase>
+    <phrase title="option_group_toggleME_Language_description" version_id="21" version_string="2.2.5"><![CDATA[ToggleME by languages Options]]></phrase>
     <phrase title="option_toggleME_Categories_CloseClass_Off" version_id="9" version_string="1.8"><![CDATA[Don't modify the display of my collapsed categories!]]></phrase>
     <phrase title="option_toggleME_Categories_CloseClass_Off_explain" version_id="9" version_string="1.8"><![CDATA[If you select this option, the display of your categories once collapsed will remain the same, which means the ToggleME Style Properties Options for categories will have no effect.]]></phrase>
     <phrase title="option_toggleME_DefaultOff_ExtraCat" version_id="7" version_string="1.6.2"><![CDATA[Default Closed EXTRA Categories]]></phrase>
@@ -184,6 +313,18 @@ If you want to add several Extra Categories IDs, <b> you HAVE to separate each I
     <phrase title="option_toggleme_effect_easing_explain" version_id="12" version_string="2.01"><![CDATA[Choose which easing effect to use during toggle actions. Here's a <a href="http://www.easings.net" target="_blank">website</a> which might help you to choose . Default value: <b>easeOutQuad</b>.]]></phrase>
     <phrase title="option_toggleME_enabled" version_id="3" version_string="V.1.2"><![CDATA[Enable toggleME]]></phrase>
     <phrase title="option_toggleME_enabled_explain" version_id="3" version_string="V.1.2"><![CDATA[Use this to disable toggleME when necessary.]]></phrase>
+    <phrase title="option_toggleME_lang_cat_config" version_id="21" version_string="2.2.5"><![CDATA[Categories - Configuration]]></phrase>
+    <phrase title="option_toggleME_lang_cat_config_explain" version_id="21" version_string="2.2.5"><![CDATA[The logic is simple, if the user language is found inside this configuration, then the categories of his language will be opened and the ones of other languages will be closed; providing he didn't choose to open/close them (cookie memory).<br/>
+To delete a configuration, just delete its language code and save.]]></phrase>
+    <phrase title="option_toggleME_lang_cat_enable" version_id="21" version_string="2.2.5"><![CDATA[Categories by language - Enable]]></phrase>
+    <phrase title="option_toggleME_lang_cat_enable_explain" version_id="21" version_string="2.2.5"><![CDATA[Enable to automatically toggle some categories by user language? P.S: </br>
+(1) The user language source is the php variable "HTTP_ACCEPT_LANGUAGE"</br>
+(2) The information of this source can't be fully trusted</br>
+(3) If you need to access the code and perform some php operation, just edit the class "Sedo_ToggleME_Helper_CustomLanguage"</br>
+(4) The language configuration will not override the option "Default Closed XenForo Categories"]]></phrase>
+    <phrase title="option_toggleME_lang_cat_fullcode" version_id="21" version_string="2.2.5"><![CDATA[Use full language code?]]></phrase>
+    <phrase title="option_toggleME_lang_cat_fullcode_explain" version_id="21" version_string="2.2.5"><![CDATA[By default, only the first part of the language subtag will be used ('en' instead of 'en-us'). If you want to use the full language code ('en-us'), just enable this option and don't forget to modify the language codes in your configuration option below.</br>
+To get a list of available language codes, <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry" target="_blank">click here</a>.]]></phrase>
     <phrase title="option_toggleME_selected_areas" version_id="3" version_string="V.1.2"><![CDATA[toggleME areas selection]]></phrase>
     <phrase title="option_toggleME_selected_areas_checkbox_node_categories" version_id="5" version_string="V.1.6"><![CDATA[Node categories in <span style="font-style:italic">forumhome</span>]]></phrase>
     <phrase title="option_toggleME_selected_areas_checkbox_node_subforums" version_id="5" version_string="V.1.6"><![CDATA[Wrapped Subforums in a forum]]></phrase>
@@ -251,6 +392,9 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     <phrase title="toggleme_closed" version_id="12" version_string="2.01"><![CDATA[Closed]]></phrase>
     <phrase title="toggleMe_Collapse" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Hide forums!]]></phrase>
     <phrase title="toggleMe_Expand" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Display forums!]]></phrase>
+    <phrase title="toggleme_langcat_catselec" version_id="21" version_string="2.2.5"><![CDATA[Categories to open]]></phrase>
+    <phrase title="toggleme_langcat_code" version_id="21" version_string="2.2.5"><![CDATA[Lang. subtag]]></phrase>
+    <phrase title="toggleme_langcat_title" version_id="21" version_string="2.2.5"><![CDATA[Language code]]></phrase>
     <phrase title="toggleme_opened" version_id="12" version_string="2.01"><![CDATA[Opened]]></phrase>
     <phrase title="toggleme_postbit_toggler_extrainfo_above" version_id="14" version_string="2.1.1"><![CDATA[Extra User Information - above (top right)]]></phrase>
     <phrase title="toggleme_postbit_toggler_userinfo_top_right" version_id="14" version_string="2.1.1"><![CDATA[Basic User Information - top right (classic)]]></phrase>
@@ -437,9 +581,9 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 	height: 16px;
 	cursor: pointer;
 }]]></template>
-    <template title="toggleme_page_container_js" version_id="12" version_string="2.01"><![CDATA[<xen:require css="toggleme_auto.css" />
+    <template title="toggleme_page_container_js" version_id="21" version_string="2.2.5"><![CDATA[<xen:require css="toggleme_auto.css" />
 <xen:require css="toggleme_manual.css" />
-<xen:require js="js/sedo/toggleme/toggleME.js?{$toggleme_js_version}" />
+<xen:require js="js/sedo/toggleme/toggleME.js" />
 ]]></template>
   </templates>
   <public_template_modifications>
@@ -449,4 +593,5 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     </modification>
   </public_template_modifications>
   <bb_code_media_sites/>
+  <bb_codes/>
 </addon>

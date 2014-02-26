@@ -31,9 +31,7 @@ class Sedo_ToggleME_Listener
 					break;
 				}
 
-				$viewParams = array(
-					'toggleme_js_version' => filemtime("js/sedo/toggleme/toggleME.js")
-				);
+				$viewParams = array();
 
 				$contents .= $template->create('toggleme_page_container_js', $viewParams);
 				break;
@@ -68,23 +66,39 @@ class Sedo_ToggleME_Listener
 				}
 					
 				//The regex backreference (?<!"></div>) is to avoid redundancy with the similar replacement inside the template_postrender function
-				$search[] = '#((?<!"></div>)<div class="categoryText">)#i';
-				$replace[] = '<div id="_crc_' . $CRC_ID . '-" class="toggle_me tglWchild' . $tglOffClass. '"></div>$1';
-				$search[] = '#(<li class="(?:.+?)?groupNoChildren(?:.+?)?">\n\s+?<div class="(?:.+?)?categoryStrip(?:.+?)?>)#i';
-				$replace[] = '$1<div class="toggle_me tglNOchild' . $tglOffClass. '"></div>';
+				$search[] = '#(?<!"></div>)<div class="categoryText">#i';
+				$replace[] = '<div id="_crc_' . $CRC_ID . '-" class="toggle_me tglWchild' . $tglOffClass. '"></div>$0';
+				$search[] = '#<li class="(?:.+?)?groupNoChildren(?:.*?)?(node_[\d]+)(?:.+?)?">\n\s+?<div class="(?:.+?)?categoryStrip(?:.+?)?>#i';
+				$replace[] = '$0<div data-id ="_$1" class="toggle_me tglNOchild' . $tglOffClass. '"></div>';
 			
 				$contents = preg_replace($search, $replace, $contents);
 						
 				//Let's now finalize the IDs of main categories adding to them their 'replacement order' number 
 						
 				$contents = preg_replace_callback('#_crc_\d{1,9}-#', array('Sedo_ToggleME_Listener', 'nodeCategoriesRegex'), $contents);
-						
-			
+
 				// Default Closed EXTRA Categories
 				if ($options->toggleME_DefaultOff_ExtraCat)
 				{
 					$closed_cats = explode(',', $options->toggleME_DefaultOff_ExtraCat);
-			
+
+					if(Sedo_ToggleME_Helper_CustomLanguage::isEnabled())
+					{
+						$userBrowserLanguage = self::getClientPreferedLanguage();
+						$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
+	
+						if(isset($languageCategories[$userBrowserLanguage]))
+						{
+							$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
+							unset($languageCategories[$userBrowserLanguage]);
+	
+							foreach($languageCategories as $tempCats)
+							{
+								$closed_cats = array_merge($closed_cats , $tempCats);
+							}
+						}
+					}
+
 					foreach ($closed_cats as $closed_cat)
 					{
 						$search = '<div id="' . $closed_cat . '" class="toggle_me';
@@ -350,6 +364,48 @@ class Sedo_ToggleME_Listener
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::bakePerms($style_session);
 				$options = XenForo_Application::get('options');
+				
+				$langCheck = Sedo_ToggleME_Helper_CustomLanguage::isEnabled();
+				
+				if($langCheck)
+				{
+					$userBrowserLanguage = self::getClientPreferedLanguage();
+
+					$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
+
+					if(!isset($languageCategories[$userBrowserLanguage]))
+					{
+						$langCheck = false;
+					}
+					else
+					{
+						$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
+						unset($languageCategories[$userBrowserLanguage]);
+
+						$languageCategoriesToClose = array();
+						foreach($languageCategories as $tempCats)
+						{
+							$languageCategoriesToClose = array_merge($languageCategoriesToClose, $tempCats);
+						}
+						
+						$languageCategoriesToClose = array_diff($languageCategoriesToClose, $languageCategoriesToKeepOpen); 
+						
+						$langCloseAllCategories = Sedo_ToggleME_Helper_CustomLanguage::closeAllCategories();
+
+						if(is_array($langCloseAllCategories))
+						{
+							if(!empty($langCloseAllCategories))
+							{
+								$languageCategoriesToKeepOpen = array_merge($languageCategoriesToKeepOpen, $langCloseAllCategories);
+								$langCloseAllCategories = true;
+							}
+							else
+							{
+								$langCloseAllCategories = false;							
+							}
+						}
+					}
+				}
 			
 				if(!$perms['toggle_forumhome_usr'] || !$options->toggleME_selected_areas['node_categories'])
 				{
@@ -366,7 +422,11 @@ class Sedo_ToggleME_Listener
 				}
 			
 				//Check if the collapsed categories must use another class
-				preg_match_all('#<li.+?class=".+?node_(?P<id>\d{1,9}).+?(?P<search><div class="categoryText">)#si', $content, $matches, PREG_SET_ORDER);
+				preg_match_all('#<li.+?class=".+?node_(?P<id>\d{1,9}).+?(?P<search><div class="categoryText">)#si', 
+					$content, 
+					$matches,
+					PREG_SET_ORDER
+				);
 
 				if(is_array($matches))
 				{
@@ -377,7 +437,21 @@ class Sedo_ToggleME_Listener
 							$withChildClasses .= ' tglWOFF';
 						}
 
-						$content = preg_replace('#<div class="categoryText">#i', '<div id="_node_' . $match['id'] . '" class="' . $withChildClasses . '"></div>$0', $content);
+						if($langCheck && 
+							(
+								in_array($match['id'], $languageCategoriesToClose) ||
+								($langCloseAllCategories && !in_array($match['id'], $languageCategoriesToKeepOpen))
+							)
+						)
+						{
+							$withChildClasses .= ' tglWOFF';
+						}
+
+						$content = preg_replace(
+							'#<div class="categoryText">#i', 
+							'<div id="_node_' . $match['id'] . '" class="' . $withChildClasses . '"></div>$0', 
+							$content
+						);
 					}
 				}
 							
@@ -475,7 +549,25 @@ class Sedo_ToggleME_Listener
 		}
 		
 		return (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
-	}	
+	}
+	
+
+	protected static $_clientPreferedLanguage = 'init';
+
+	public static function getClientPreferedLanguage()
+	{
+		if(self::$_clientPreferedLanguage == 'init')
+		{
+			$clientPreferedLanguage = Sedo_ToggleME_Helper_Misc::getClientPreferedLanguage(!Sedo_ToggleME_Helper_CustomLanguage::useFullLanguageCode());
+			self::$_clientPreferedLanguage = $clientPreferedLanguage;
+		}
+		else
+		{
+			$clientPreferedLanguage = self::$_clientPreferedLanguage;
+		}
+
+		return $clientPreferedLanguage;
+	}
 }
 /*
 	DEV TOOLS:

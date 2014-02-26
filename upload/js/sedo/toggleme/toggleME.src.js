@@ -1,54 +1,45 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 2.2*/
+	/*ToggleME 2.3*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
 		cookiename: 'toggleme',
 		initGlobal: function($element)
 		{
-			var t = XenForo.ToggleME;
+			var self = XenForo.ToggleME;
 
 			//Define ToogleMe Cookie
-			t.mycookie = $.getCookie(t.cookiename);
+			self.mycookie = $.getCookie(self.cookiename);
 			
 			//Init Effects
-			t.initEffects();
+			self.initEffects();
 			
 			//Check if is bloodyIE
-			if($.browser.msie && parseInt($.browser.version, 10) < 8)
-			{
-				t.bloodyIE = true;
+			if($.browser.msie && parseInt($.browser.version, 10) < 8){
+				self.bloodyIE = true;
 			}
 			
 			// NODES with children
-			$('.tglWchild').ready(function() 
-			{
-				var hook = '.tglWchild',
-				cookie_data_prefix = 'main';
-				
-				t.bakeCategories(hook, cookie_data_prefix);
+			$('.tglWchild').ready(function() {
+				var hook = '.tglWchild', cookie_data_prefix = 'main';
+				self.bakeCategories(hook, cookie_data_prefix);
 			});
 		
 			// NODES without children
-			$('.tglNOchild').ready(function() 
-			{
-				var hook = '.tglNOchild',
-				cookie_data_prefix = 'mix';
-				
-				t.bakeCategories(hook, cookie_data_prefix);
+			$('.tglNOchild').ready(function() {
+				var hook = '.tglNOchild', cookie_data_prefix = 'mix';
+				self.bakeCategories(hook, cookie_data_prefix);
 			});
 		
 			// NODELIST in FORUMVIEW
-			$('.tglNodelist_forumview').ready(function()
-			{
-				t.bakeNodeList();
+			$('.tglNodelist_forumview').ready(function(){
+				self.bakeNodeList();
 			});
 	
 			// SIDEBAR BLOCKS
-			$('.tglSidebar').ready(function()
-			{
-				t.bakeBlocks();	
+			$('.tglSidebar').ready(function(){
+				self.bakeBlocks();	
 			});		
 		
 		},
@@ -59,16 +50,15 @@
 		},
 		initPostbit: function($element)
 		{
-			var t = XenForo.ToggleME,
+			var self = XenForo.ToggleME,
 				$tglPostbit = $element.find('.tglPosbit'),
 				$extraUserInfo = $element.find('.extraUserInfo');
 
 			//Init Effects
-			t.initEffects();
+			self.initEffects();
 
 			//Check if toggle option is activated
-			if($tglPostbit.length == 0)
-			{
+			if($tglPostbit.length == 0){
 				return;
 			}
 
@@ -79,349 +69,334 @@
       				will prevent to display the toggle icon if extraUserInfo has no content ^^
       			*/
 			
-			function open($el) {
-				var currentExtraInfo = $el.parents('.messageUserBlock').find('.extraUserInfo');
-				currentExtraInfo.slideDown(t.d, t.e).removeClass('toggleHidden');
-      				$el.removeClass('inactive').addClass("active");			
-			}
+			var open = function(){
+				var $el = $(this);
+				$el.parents('.messageUserBlock').find('.extraUserInfo')
+					.slideDown(self.d, self.e).removeClass('toggleHidden');
+      				$el.removeClass('inactive').addClass('active');			
+			};
 			
-			function close($el) {
-				var currentExtraInfo = $el.parents('.messageUserBlock').find('.extraUserInfo');
-				currentExtraInfo.slideUp(t.d, t.e).addClass('toggleHidden');
-				$el.removeClass('active').addClass("inactive");			
-			}
+			var close = function(){
+				var $el = $(this);
+				$el.parents('.messageUserBlock').find('.extraUserInfo')
+					.slideUp(self.d, self.e).addClass('toggleHidden');
+				$el.removeClass('active').addClass('inactive');			
+			};
 
 			if(XenForo.toogleMeConfig.postbit_state === 0){
 				$extraUserInfo.hide();
-				$tglPostbit.addClass("inactive")
-					.toggle(function () { open($(this)); }, function () { close($(this)); });
+				$tglPostbit.addClass('inactive').toggle(open, close);
 			}else{
 				$extraUserInfo.show();
-	      			$tglPostbit.addClass("active")
-	      				.toggle(function () { close($(this)); }, function () { open($(this)); });
+	      			$tglPostbit.addClass('active').toggle(close, open);
 			}
 		},
 		bakeCookie: function(cname, ccat, cval) 
 		{
-			var cdata = ccat + ':' + cval,
-			t = this;	
+			var cdata = ccat + ':' + cval, self = this;	
 		
-			if (t.mycookie && !(t.mycookie == 'undefined')){//if the cookie exists and its value is defined
-				var cdatas = t.mycookie.split('[]'),
-				ccat_regex = new RegExp( ccat + ":[01]", "i" );
+			if (self.mycookie && !(self.mycookie == 'undefined')){
+				//if the cookie exists and its value is defined [to check]
+				var cdatas = self.mycookie.split('[]'),
+					ccat_regex = new RegExp( ccat + ":[01]", "i" );
 				
-				if (t.mycookie.match(ccat_regex)){//if the category is found inside cookie change its value
-					t.mycookie = t.mycookie.replace(ccat_regex, cdata);
+				if (self.mycookie.match(ccat_regex)){
+					//if the category is found inside cookie change its value
+					self.mycookie = self.mycookie.replace(ccat_regex, cdata);
 				} 
-				else{//if the category is not found, add it inside the cookie
-					t.mycookie = t.mycookie + '[]' + cdata;
+				else{
+					//if the category is not found, add it inside the cookie
+					self.mycookie = self.mycookie + '[]' + cdata;
 				}
-			}
-			else//if the cookie hasn't been created yet
-			{
-				t.mycookie = cdata;
+			}else{
+				//if the cookie hasn't been created yet
+				self.mycookie = cdata;
 			}
 	
 			//Date Expiratation
 			var expires = 90; // number of days
 			expires = new Date(new Date().getTime() + expires * 86400000); // milliseconds in a day
 		
-			return $.setCookie(cname, t.mycookie, expires); //final cookie value
+			return $.setCookie(cname, self.mycookie, expires);
 		},
 		bakeCategories: function(hook, cookie_data_prefix)
 		{
-			var hook_active = hook + '.active',
-			hook_inactive = hook + '.inactive',
-			hook_defaultoff = hook + '.tglWOFF',
-			chkClass = false,
-	      		t = this;
+			var self = this,
+				$hook = $(hook),
+				hook_active = hook+'.active',
+				hook_inactive = hook+'.inactive',
+				hook_defaultoff = hook+'.tglWOFF',
+				chkClass = false,
+				CategoryStripCollapsed = 'CategoryStripCollapsed', categoryStrip = 'categoryStrip',
+				inactive = 'inactive', active = 'active';
 	
-			if(!$(hook).hasClass("tglDnt"))
-			{
+			if(!$hook.hasClass('tglDnt')){
 				chkClass = true;
 			}
-			
-			$(hook).addClass("active");
+
+			$hook.addClass('active');
 		
 			//Multi theme and multi-addon trick
-			$(hook).parent().each(function(){
+			$hook.parent().each(function(){
 				$(this).nextAll().not('span').wrapAll('<div class="toggleMEtarget" />');
 			});
 		
-			//Force close option ?
-			if(hook_defaultoff)
-			{
-				/*
-					Not needed => if user decided to open a closed category, don't automatically close it again
-					$(hook_defaultoff).parent().next().css({display:"none"});
-					$(hook_defaultoff).removeClass('active').addClass("inactive");
-					$(hook_defaultoff).parent().removeClass("categoryStrip").addClass("CategoryStripCollapsed");
-				*/
-			}
-		
 			//Check inside cookie which category has to be collapsed
-			if (t.mycookie && !(t.mycookie == 'undefined')){
+			if (self.mycookie && !(self.mycookie == 'undefined')){
 			//The cookie exists, let's proceed
 				//Let's get all the categories with ID (XenForo Categories -  template_postrender fct || XenForo Add-ons -  template_hook fct)
-				$(hook).each(function(index){
-					var node_id = this.id,
-					TargeT = $(this).parent().next(), // = li.category ol ; = toggleMEtarget
-					check_regex_closed = new RegExp(cookie_data_prefix + node_id + ":1", "i" ), //Look inside cookie to check if category was closed
-					check_regex_opened = new RegExp(cookie_data_prefix + node_id + ":0", "i" ); //Look inside cookie to check if category was opened
-												
-					if ( (t.mycookie.match(check_regex_closed)) || ($(this).hasClass('tglWOFF') && !(t.mycookie.match(check_regex_opened)) && !(t.mycookie.match(check_regex_closed))) ){
-						$(TargeT).hide();
-						$(TargeT).prev().children(hook).removeClass('active').addClass('inactive');
+				$hook.each(function(index){
+					var $this = $(this),
+						node_id = this.id,
+	      					node_id = (node_id == undefined || !node_id) ? $this.data('id') : node_id;
+
+					var $target = $this.parent().next(), // = li.category ol ; = toggleMEtarget
+						check_regex_closed = new RegExp(cookie_data_prefix + node_id + ":1", "i" ), //Look inside cookie to check if category was closed
+						check_regex_opened = new RegExp(cookie_data_prefix + node_id + ":0", "i" ); //Look inside cookie to check if category was opened
+
+					if ( (self.mycookie.match(check_regex_closed)) || 
+						($this.hasClass('tglWOFF') && 
+							!(self.mycookie.match(check_regex_opened)) &&
+							!(self.mycookie.match(check_regex_closed))
+						)
+					){
+						$target.hide();
+						$target.prev().children(hook).removeClass(active).addClass(inactive);
 						if(chkClass == true)
 						{
-							$(TargeT).prev().removeClass('categoryStrip').addClass('CategoryStripCollapsed');
+							$target.prev().removeClass(categoryStrip).addClass(CategoryStripCollapsed);
 						}
 					}
 				});
-		
-			}
-			else{
+			}else{
 			//The cookie doesn't exist, manage the defaut closed categories
 				$(hook_defaultoff).parent().next().hide();
-				$(hook_defaultoff).removeClass('active').addClass("inactive");
-				if(chkClass == true)
-				{			
-					$(hook_defaultoff).parent().removeClass("categoryStrip").addClass("CategoryStripCollapsed");
+				$(hook_defaultoff).removeClass(active).addClass(inactive);
+				if(chkClass == true){			
+					$(hook_defaultoff).parent().removeClass(categoryStrip).addClass(CategoryStripCollapsed);
 				}
 			};
-		
-			//Active class
-			$(hook_active).toggle(
-				function () {// I was considered as active, COLLAPSE ME !
-					if(t.bloodyIE) { $(this).parent().next().slideUp(t.d, t.e).hide(); } else { $(this).parent().next().slideUp(t.d, t.e); }
-					
-					$(this).removeClass('active').addClass("inactive");
-					if(chkClass == true)
-					{
-						$(this).parent().removeClass('categoryStrip').addClass("CategoryStripCollapsed");
-					}
-		
-					var num = $(this).attr('id'),
-					cookieCategory = cookie_data_prefix + num,
-					cookieCategoryValue = '1';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-				},
-				function () {// I was considered as active and you COLLAPSE ME, EXPAND ME !
-					if(t.bloodyIE) { $(this).parent().next().show(); } else { $(this).parent().next().slideDown(t.d, t.e); }
-					$(this).removeClass('inactive').addClass("active");
-					if(chkClass == true)
-					{
-						$(this).parent().removeClass("CategoryStripCollapsed").addClass("categoryStrip");
-					}
-		
-					var num = $(this).attr('id'),
-					cookieCategory = cookie_data_prefix + num,
-					cookieCategoryValue = '0';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-				}
-			);
-			
-			//Inactive class
-			$(hook_inactive).toggle(
-				function () {// I was considered as inactive, EXPAND ME !
-					if(t.bloodyIE) { $(this).parent().next().show(); } else { $(this).parent().next().slideDown(t.d, t.e); }
-					$(this).removeClass('inactive').addClass("active");
-					if(chkClass == true)
-					{
-						$(this).parent().removeClass("CategoryStripCollapsed").addClass("categoryStrip");
-					}
-					var num = $(this).attr('id'),
-					cookieCategory = cookie_data_prefix + num,
-					cookieCategoryValue = '0';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-		
-				},
-				function () { // I was considered as inactive and you expanded me, COLLAPSE ME !
-					if(t.bloodyIE) { $(this).parent().next().hide(); } else { $(this).parent().next().slideUp(t.d, t.e); }
-					$(this).removeClass('active').addClass("inactive");
-					if(chkClass == true)
-					{				
-						$(this).parent().removeClass('categoryStrip').addClass("CategoryStripCollapsed");
-					}
-	
-					var num = $(this).attr('id'),
-					cookieCategory = cookie_data_prefix + num,
-					cookieCategoryValue = '1';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-				}
-			);
+
+			var genericToggle = function($this, expand)
+			{
+      				var $parent = $this.parent(),
+      					$elToSlide = $parent.next(),
+    					classToRemove = (expand) ? inactive : active,
+      					classToAdd = (expand) ? active : inactive,
+      					parentClassToRemove = (expand) ? CategoryStripCollapsed : categoryStrip,
+      					parentClassToAdd = (expand) ? categoryStrip : CategoryStripCollapsed;
+
+      				if(self.bloodyIE) {
+      					if(expand){
+	      					$elToSlide.show();
+	      				}else{
+	      					$elToSlide.hide();
+	      				}
+      				} else {
+    					if(expand){
+	      					$elToSlide.slideDown(self.d, self.e);
+	      				}else{
+      						$elToSlide.slideUp(self.d, self.e);
+	      				}
+      				}
+
+      				$this.removeClass(classToRemove).addClass(classToAdd);
+
+      				if(chkClass == true){
+      					$parent.removeClass(parentClassToRemove).addClass(parentClassToAdd);
+      				}
+
+      				var num = $this.attr('id'),
+     					num = (num == undefined) ? $this.data('id') : num;
+     				
+				var cookieCategory = cookie_data_prefix + num,
+      					cookieCategoryValue = (expand) ? '0' : '1';
+
+      				self.bakeCookie(self.cookiename, cookieCategory, cookieCategoryValue);			
+			}
+
+			var collapseME = function(){
+				genericToggle($(this), false);
+			};
+
+			var expandME = function(){
+				genericToggle($(this), true);
+			};
+
+			$(hook_active).toggle(collapseME, expandME);
+			$(hook_inactive).toggle(expandME, collapseME);
 		},
 		bakeNodeList: function()
 		{
-			var hook = '.tglNodelist_forumview',
-			hook_active = hook + '.active',
-			hook_inactive = hook + '.inactive',
-			cookie_data_prefix = 'ndfw_',
-			ndfw_id = $('.tglNodelist_forumview').attr('id'), //will be unique anyway: 1 per page max
-			cookieCategory = cookie_data_prefix + ndfw_id,
-	      		t = this;
+			var self = this,
+				hook = '.tglNodelist_forumview',
+				$hook = $(hook),
+				hook_active = hook + '.active',
+				hook_inactive = hook + '.inactive',
+				cookie_data_prefix = 'ndfw_',
+				ndfw_id = $('.tglNodelist_forumview').attr('id'), //will be unique anyway: 1 per page max
+				cookieCategory = cookie_data_prefix + ndfw_id,
+				toggleME_Expand = '.toggleME_Expand', toggleME_Collapse = '.toggleME_Collapse',
+				active = 'active', inactive = 'inactive';
 		
 			//Wrap all next tags in parent
-			$(hook).each(function(){
+			$hook.each(function(){
 				$(this).nextAll().wrapAll('<div class="toggleMEtarget" />');
 			});
 	
 			//Check if must be closed by default
-			if($(hook).hasClass("tglNodeOff"))
-			{
-				$(hook).addClass("inactive");
-				$(hook).children('.toggleME_Expand').show();
-				$(hook).children('.toggleME_Collapse').hide();
-				$(hook).next().hide();
-			}
-			else
-			{
-				$(hook).addClass("active");
-				$(hook).children('.toggleME_Expand').hide();
-				$(hook).children('.toggleME_Collapse').show();
+			if($hook.hasClass('tglNodeOff')){
+				$hook.addClass(inactive).children(toggleME_Expand).show();
+				$hook.children(toggleME_Collapse).hide();
+				$hook.next().hide();
+			}else{
+				$hook.addClass(active).children(toggleME_Expand).hide();
+				$hook.children(toggleME_Collapse).show();
 			}
 		
 			//Cookie check
-			if (t.mycookie && !(t.mycookie == 'undefined')){
-				var check_regex = new RegExp(cookieCategory + ":1", "i" );
-		
-				if (t.mycookie.match(check_regex)){
-					$(hook).next().hide();
-					$(hook).removeClass('active').addClass('inactive');
-					$(hook).children('.toggleME_Expand').show();
-					$(hook).children('.toggleME_Collapse').hide();
+			if (self.mycookie && !(self.mycookie == 'undefined')){
+				if($hook.hasClass('tglNodeOff')){
+					var check_regex = new RegExp(cookieCategory + ":0", "i" );
+
+					if (self.mycookie.match(check_regex)){
+						$hook.removeClass(inactive).addClass(active).next().show();
+						$hook.children(toggleME_Expand).hide();
+						$hook.children(toggleME_Collapse).show();					
+					}
+				}else{
+					var check_regex = new RegExp(cookieCategory + ":1", "i" );
+
+					if (self.mycookie.match(check_regex)){
+						$hook.removeClass(active).addClass(inactive).next().hide();
+						$hook.children(toggleME_Expand).show();
+						$hook.children(toggleME_Collapse).hide();
+					}
 				}
 			};
 		
 			//Let's toogle !
-			$(hook_active).toggle(
-				function () {// I was considered as active, COLLAPSE ME !
-					$(this).children('.toggleME_Collapse').hide();
-					$(this).children('.toggleME_Expand').show();
-					$(this).next().slideUp(t.d, t.e);
-					$(this).removeClass('active').addClass("inactive");
-		
-					var cookieCategoryValue = '1';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-				},
-				function () {// I was considered as active and you COLLAPSE ME, EXPAND ME !
-					$(this).children('.toggleME_Collapse').show();
-					$(this).children('.toggleME_Expand').hide();
-					$(this).next().slideDown(t.d, t.e);
-					$(this).removeClass('inactive').addClass("active");
-		
-					var cookieCategoryValue = '0';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
+			var genericToggle = function($this, expand)
+			{
+				var toShow = (expand) ? toggleME_Collapse : toggleME_Expand,
+					toHide = (expand) ? toggleME_Expand : toggleME_Collapse,
+					classToRemove = (expand) ? inactive : active,
+					classToAdd = (expand) ? active : inactive;
+
+				$this.children(toShow).show();
+				$this.children(toHide).hide();
+
+				if(expand){
+					$this.next().slideDown(self.d, self.e);
+				}else{
+					$this.next().slideUp(self.d, self.e);				
 				}
-			);
-			$(hook_inactive).toggle(
-				function () {// I was considered as inactive, EXPAND ME !
-					$(this).children('.toggleME_Collapse').show();
-					$(this).children('.toggleME_Expand').hide();
-					$(this).next().slideDown(t.d, t.e);
-					$(this).removeClass('inactive').addClass("active");
+
+				$this.removeClass(classToRemove).addClass(classToAdd);
 		
-					var cookieCategoryValue = '0';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-		
-				},
-				function () { // I was considered as inactive and you expanded me, COLLAPSE ME !
-					$(this).children('.toggleME_Collapse').hide();
-					$(this).children('.toggleME_Expand').show();
-					$(this).next().slideUp(t.d, t.e);
-					$(this).removeClass('active').addClass("inactive");
-		
-					var cookieCategoryValue = '1';
-					t.bakeCookie(t.cookiename, cookieCategory, cookieCategoryValue);
-				}
-			);
+				var cookieCategoryValue = (expand) ? '0' : '1';
+				self.bakeCookie(self.cookiename, cookieCategory, cookieCategoryValue);
+			}
+
+			var collapseME = function(){
+				genericToggle($(this), false);
+			};
+
+			var expandME = function(){
+				genericToggle($(this), true);
+			};
+
+			$(hook_active).toggle(collapseME, expandME);
+			$(hook_inactive).toggle(expandME, collapseME);
 		},
 		bakeBlocks: function()
 		{
-	      		var hook = '.tglSidebar',
-	      		hook_active = hook + '.active',
-	      		hook_inactive = hook + '.inactive',
-	      		hook_defaultoff = hook + '.tglSbOFF',
-	      		cookie_data_prefix = 'sbb',
-	      		t = this;
+	      		var self = this,
+	      			hook = '.tglSidebar',
+	      			$hook = $(hook),
+				hook_active = hook + '.active',
+	      			hook_inactive = hook + '.inactive',
+		      		hook_defaultoff = hook + '.tglSbOFF',
+		      		cookie_data_prefix = 'sbb',
+		      		toggleMEtarget = '.toggleMEtarget',
+		      		secondaryContent = 'secondaryContent', secondaryContentCollapsed = 'secondaryContentCollapsed',
+		      		active = 'active', inactive = 'inactive',
+				WFWR = 'WidgetFramework_WidgetRenderer_';
 	      	
-	      		$(hook).addClass("active");
+	      		$hook.addClass(active);
 	      	
 	      		//Wrap all next tags in parent
-	      		$(hook).next().each(function(){
+	      		$hook.next().each(function(){
 	      			$(this).nextAll().wrapAll('<div class="toggleMEtarget" />');
 	      		});
 	      	
 	      		//Cookie check
-	      		if (t.mycookie && !(t.mycookie == 'undefined')){
+	      		if (self.mycookie && !(self.mycookie == 'undefined')){
 	      		//The cookie exists, let's proceed
 	      			//Let's get all the categories with ID (XenForo Categories -  template_postrender fct || XenForo Add-ons -  template_hook fct)
-	      			$(hook).each(function(index){
-	      				var sbb_id = this.id;
-	      				var check_regex_closed = new RegExp(cookie_data_prefix + sbb_id + ":1", "i" ); //Look inside cookie to check if category was closed
-	      				var check_regex_opened = new RegExp(cookie_data_prefix + sbb_id + ":0", "i" ); //Look inside cookie to check if category was opened
+	      			$hook.each(function(index){
+	      				var $this = $(this),
+	      					sbb_id = this.id;
+
+     						if(sbb_id != undefined){
+		     					sbb_id = sbb_id.replace(WFWR, 'WFWR_');
+     						}
+     							      					
+	      				var check_regex_closed = new RegExp(cookie_data_prefix + sbb_id + ":1", "i" ), //Look inside cookie to check if category was closed
+	      					check_regex_opened = new RegExp(cookie_data_prefix + sbb_id + ":0", "i" ); //Look inside cookie to check if category was opened
 	      											
-	      				if ( (t.mycookie.match(check_regex_closed)) || ($(this).hasClass('tglSbOFF') && !(t.mycookie.match(check_regex_opened)) && !(t.mycookie.match(check_regex_closed))) ){
-	      					$(this).siblings('.toggleMEtarget').hide();
-	      					$(this).removeClass('active').addClass("inactive");
-	      					$(this).parent().removeClass('secondaryContent').addClass("secondaryContentCollapsed");				
+	      				if ( (self.mycookie.match(check_regex_closed)) || ($this.hasClass('tglSbOFF') && !(self.mycookie.match(check_regex_opened)) && !(self.mycookie.match(check_regex_closed))) ){
+	      					$this.siblings(toggleMEtarget).hide();
+	      					$this.removeClass(active).addClass(inactive);
+	      					$this.parent().removeClass(secondaryContent).addClass(secondaryContentCollapsed);
 	      				}
 	      			});
 	      	
-	      		}
-	      		else{
+	      		}else{
 	      		//The cookie doesn't exist, manage the defaut closed categories
-	      			$(hook_defaultoff).siblings('.toggleMEtarget').hide();
-	      			$(hook_defaultoff).removeClass('active').addClass("inactive");
-	      			$(hook_defaultoff).parent().removeClass('secondaryContent').addClass("secondaryContentCollapsed");				
+	      			$(hook_defaultoff).removeClass(active).addClass(inactive).siblings(toggleMEtarget).hide();
+	      			$(hook_defaultoff).parent().removeClass(secondaryContent).addClass(secondaryContentCollapsed);
 	      		};
 	      	
 	      		//Let's toogle !
-	      		$(hook_active).toggle(
-	      			function () {// I was considered as active, COLLAPSE ME !
-	      				$(this).siblings('.toggleMEtarget').slideUp(t.d, t.e);
-	      				$(this).removeClass('active').addClass("inactive");
-	      				$(this).parent().removeClass('secondaryContent').addClass("secondaryContentCollapsed");
+			var genericToggle = function($this, expand)
+			{
+				var classToRemove = (expand) ? inactive : active,
+					classToAdd = (expand) ? active : inactive,
+					parentClassToRemove = (expand) ? secondaryContentCollapsed : secondaryContent,
+					parentClassToAdd = (expand) ? secondaryContent : secondaryContentCollapsed;
+
+					if(expand){
+	      					$this.siblings(toggleMEtarget).slideDown(self.d, self.e);
+	      				}else{
+	      					$this.siblings(toggleMEtarget).slideUp(self.d, self.e);	      				
+	      				}
+	      				
+	      				$this.removeClass(classToRemove).addClass(classToAdd);
+	      				$this.parent().removeClass(parentClassToRemove).addClass(parentClassToAdd);
 	      	
-	      				var num = $(this).attr('id');
-	      				var cookieWidget = cookie_data_prefix + num;
-	      				var cookieWidgetValue = '1';
-	      				t.bakeCookie(t.cookiename, cookieWidget, cookieWidgetValue);
-	      			},
-	      			function () {// I was considered as active and you COLLAPSE ME, EXPAND ME !
-	      				$(this).siblings('.toggleMEtarget').slideDown(t.d, t.e);
-	      				$(this).removeClass('inactive').addClass("active");
-	      				$(this).parent().removeClass('secondaryContentCollapsed').addClass("secondaryContent");
-	      	
-	      				var num = $(this).attr('id');
-	      				var cookieWidget = cookie_data_prefix + num;
-	      				var cookieWidgetValue = '0';
-	      				t.bakeCookie(t.cookiename, cookieWidget, cookieWidgetValue);
-	      			}
-	      		);
-	      		$(hook_inactive).toggle(
-	      			function () {// I was considered as inactive, EXPAND ME !
-	      				$(this).siblings('.toggleMEtarget').slideDown(t.d, t.e);
-	      				$(this).removeClass('inactive').addClass("active");
-	      				$(this).parent().removeClass('secondaryContentCollapsed').addClass("secondaryContent");
-	      	
-	      				var num = $(this).attr('id');
-	      				var cookieWidget = cookie_data_prefix + num;
-	      				var cookieWidgetValue = '0';
-	      				t.bakeCookie(t.cookiename, cookieWidget, cookieWidgetValue);
-	      	
-	      			},
-	      			function () { // I was considered as inactive and you expanded me, COLLAPSE ME !
-	      				$(this).siblings('.toggleMEtarget').slideUp(t.d, t.e);
-	      				$(this).removeClass('active').addClass("inactive");
-	      				$(this).parent().removeClass('secondaryContent').addClass("secondaryContentCollapsed");
-	      	
-	      				var num = $(this).attr('id');
-	      				var cookieWidget = cookie_data_prefix + num;
-	      				var cookieWidgetValue = '1';
-	      				t.bakeCookie(t.cookiename, cookieWidget, cookieWidgetValue);
-	      			}
-	      		);
+      				var num = $this.attr('id');
+      			
+     				if(num != undefined){
+     					num = num.replace(WFWR, 'WFWR_');
+     				}
+     				      			
+				var cookieWidget = cookie_data_prefix + num;
+					cookieWidgetValue = (expand) ? '0' : '1';
+					
+      				self.bakeCookie(self.cookiename, cookieWidget, cookieWidgetValue);
+			}
+
+			var collapseME = function(){
+				genericToggle($(this), false);
+			};
+
+			var expandME = function(){
+				genericToggle($(this), true);
+			};
+
+	      		$(hook_active).toggle(collapseME, expandME);
+	      		$(hook_inactive).toggle(expandME, collapseME);
 	      	}
 	}
 
