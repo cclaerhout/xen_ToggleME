@@ -222,6 +222,12 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME_Language" display_order="10"/>
     </option>
+    <option option_id="toggleME_lang_cat_fallback_open" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME_Language" display_order="30"/>
+    </option>
     <option option_id="toggleME_lang_cat_fullcode" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -325,6 +331,8 @@ To delete a configuration, just delete its language code and save.]]></phrase>
 (2) The information of this source can't be fully trusted</br>
 (3) If you need to access the code and perform some php operation, just edit the class "Sedo_ToggleME_Helper_CustomLanguage"</br>
 (4) The language configuration will not override the option "Default Closed XenForo Categories"]]></phrase>
+    <phrase title="option_toggleME_lang_cat_fallback_open" version_id="23" version_string="2.3.0"><![CDATA[Fallback language - Keep language categories opened?]]></phrase>
+    <phrase title="option_toggleME_lang_cat_fallback_open_explain" version_id="23" version_string="2.3.0"><![CDATA[When the user language is not in your configuration, the default behaviour is to close the categories since he should not be able to read these categories using different languages. If you want instead to keep the categories open, check this option.]]></phrase>
     <phrase title="option_toggleME_lang_cat_fullcode" version_id="21" version_string="2.2.5"><![CDATA[Use full language code?]]></phrase>
     <phrase title="option_toggleME_lang_cat_fullcode_explain" version_id="21" version_string="2.2.5"><![CDATA[By default, only the first part of the language subtag will be used ('en' instead of 'en-us'). If you want to use the full language code ('en-us'), just enable this option and don't forget to modify the language codes in your configuration option below.</br>
 To get a list of available language codes, <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry" target="_blank">click here</a>.]]></phrase>

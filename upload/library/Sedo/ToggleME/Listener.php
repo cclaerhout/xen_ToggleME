@@ -86,10 +86,12 @@ class Sedo_ToggleME_Listener
 					{
 						$userBrowserLanguage = self::getClientPreferedLanguage();
 						$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
+						$proceed = true;
 	
 						if(!isset($languageCategories[$userBrowserLanguage]))
 						{
 							$languageCategoriesToKeepOpen = array();
+							$proceed = !$options->toggleME_lang_cat_fallback_open;
 						}
 						else
 						{
@@ -97,9 +99,12 @@ class Sedo_ToggleME_Listener
 							unset($languageCategories[$userBrowserLanguage]);
 						}	
 
-						foreach($languageCategories as $tempCats)
+						if($proceed)
 						{
-							$closed_cats = array_merge($closed_cats , $tempCats);
+							foreach($languageCategories as $tempCats)
+							{
+								$closed_cats = array_merge($closed_cats , $tempCats);
+							}
 						}
 					}
 
@@ -379,6 +384,7 @@ class Sedo_ToggleME_Listener
 
 					if(!isset($languageCategories[$userBrowserLanguage]))
 					{
+						$langCheck = !$options->toggleME_lang_cat_fallback_open;
 						$languageCategoriesToKeepOpen = array();
 					}
 					else
@@ -562,7 +568,7 @@ class Sedo_ToggleME_Listener
 	{
 		if(self::$_clientPreferedLanguage == 'init')
 		{
-			$clientPreferedLanguage = Sedo_ToggleME_Helper_Misc::getClientPreferedLanguage(!Sedo_ToggleME_Helper_CustomLanguage::useFullLanguageCode());
+			$clientPreferedLanguage = strtolower(Sedo_ToggleME_Helper_Misc::getClientPreferedLanguage(!Sedo_ToggleME_Helper_CustomLanguage::useFullLanguageCode()));
 			self::$_clientPreferedLanguage = $clientPreferedLanguage;
 		}
 		else

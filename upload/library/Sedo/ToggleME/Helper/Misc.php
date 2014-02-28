@@ -5,7 +5,7 @@ class Sedo_ToggleME_Helper_Misc
 	{
 		if(!isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
 		{
-			return null;
+			return '';
 		}
 
 		if (empty($acceptedLanguages))

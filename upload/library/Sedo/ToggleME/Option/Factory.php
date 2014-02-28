@@ -87,7 +87,7 @@ class Sedo_ToggleME_Option_Factory
 				$config['nodes'] = array();
 			}
 			
-			$langCode = strtolower($config['lang']);
+			$langCode = $config['lang'];
 			$data[$langCode] = $config['nodes'];
 		}
 
