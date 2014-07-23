@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.2.5
+// Last modified: version 2.3.1
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -74,8 +74,8 @@ class Sedo_ToggleME_Listener
 				$contents = preg_replace($search, $replace, $contents);
 						
 				//Let's now finalize the IDs of main categories adding to them their 'replacement order' number 
-						
-				$contents = preg_replace_callback('#_crc_\d{1,9}-#', array('Sedo_ToggleME_Listener', 'nodeCategoriesRegex'), $contents);
+				self::resetCounter();
+				$contents = preg_replace_callback('#_crc_\d{1,9}-#', array('Sedo_ToggleME_Listener', 'makeMeUniqRegex'), $contents);
 
 				// Default Closed EXTRA Categories
 				if ($options->toggleME_DefaultOff_ExtraCat)
@@ -175,25 +175,43 @@ class Sedo_ToggleME_Listener
 				//must be an array AND only have numeric value (not full class name)
 				$excludes_noclass = $widgets_options['excludes_noclass'];
 				$OFF_noclass = $widgets_options['OFF_noclass'];
-					
-				foreach ($matches_sb[1] as $match_sb)
+
+				$sb_count = array_count_values($matches_sb[1]);
+
+				foreach ($matches_sb[1] as $sbKey => $match_sb)
 				{
+					preg_match('#\S+.*+#i', $match_sb, $blockId);
+										
+					if($sb_count[$match_sb] > 1)
+					{
+						list($blockName, $id) = self::_uniqBlockId($blockId[0], true);
+						
+						$search = $matches_sb[0][$sbKey];
+						$replace = str_replace($match_sb, " {$blockName}", $matches_sb[0][$sbKey]);;
+						$contents = preg_replace('#'.preg_quote($search).'#i', $replace, $contents, 1);
+						$match_sb = str_replace($match_sb, " {$blockName}", $match_sb);
+					}
+					else
+					{
+						list($blockName, $id) = self::_uniqBlockId($blockId[0], false);
+					}
+
 					//Blocks with several class names
 					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND !$hasFramework)
 					{
 						$search = '#<div class="section' . $match_sb . '">[\r\n\t ]*.+$#mi';
-						preg_match('#(\S+).*+#i', $match_sb, $block_id);
-						
+					
 						if(!empty($OFF_withclass) AND preg_match('#\b' . $OFF_withclass . '\b#i', $match_sb))
 						{
-							$replace = '$0<div id="tglblock_'. $block_id[1] .'" class="tglSidebar tglSbOFF"></div>';
+							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar tglSbOFF"></div>';
 						}
 						else
 						{
-							$replace = '$0<div id="tglblock_'. $block_id[1] .'" class="tglSidebar"></div>';
+							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
 						}
-			
-						$contents = preg_replace($search, $replace, $contents);
+
+						$contents = preg_replace($search, $replace, $contents, 1, $count);
+						var_dump($count);
 					}
 
 					/*Blocks with several class names - with Framework*/
@@ -203,15 +221,14 @@ class Sedo_ToggleME_Listener
 						$tempFix_hasSameClassName = '(?!<div id="tglblock_)';
 						
 						$search = '#<div[^>]+?class="[^>]+?widget[^>]+?' . $match_sb . '[^>]+?>'. $tempFix_hasSameClassName . '#i';
-						preg_match('#(\S+).*+#i', $match_sb, $block_id);
 
 						if(!empty($OFF_withclass) AND preg_match('#\b' . $OFF_withclass . '\b#i', $match_sb))
 						{
-							$replace = '$0<div id="tglblock_'. $block_id[1] .'" class="tglSidebar tglSbOFF"></div>';
+							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar tglSbOFF"></div>';
 						}
 						else
 						{
-							$replace = '$0<div id="tglblock_'. $block_id[1] .'" class="tglSidebar"></div>';
+							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
 						}
 			
 						$contents = preg_replace($search, $replace, $contents, 1);
@@ -240,10 +257,37 @@ class Sedo_ToggleME_Listener
 
     	protected static $_counter = 0;
     
-    	public static function nodeCategoriesRegex($matches)
+    	public static function makeMeUniqRegex($matches, $separator = '')
 	{
 		self::$_counter++;
-		return $matches[0] . self::$_counter;
+		return $matches[0] . $separator . self::$_counter;
+	}
+	
+	public static function resetCounter()
+	{
+		self::$_counter = 0;
+	}
+
+	protected static $_blockIdStack = array();
+		
+	protected static function _uniqBlockId($blockId, $applyCorrection)
+	{
+		$id = 0;
+		$blockName = $blockId;
+		
+		if( isset(self::$_blockIdStack[$blockId]) )
+		{
+			$id = self::$_blockIdStack[$blockId]+1;
+		}
+
+		if($applyCorrection)
+		{
+			$blockName = "{$blockId} n-{$id}";
+		}
+		
+		self::$_blockIdStack[$blockId] = $id;
+		
+		return array($blockName, $id);
 	}
 	
 	public static function BakeWidgetsOptions($excludes, $off)
