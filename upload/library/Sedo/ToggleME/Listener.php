@@ -211,7 +211,6 @@ class Sedo_ToggleME_Listener
 						}
 
 						$contents = preg_replace($search, $replace, $contents, 1, $count);
-						var_dump($count);
 					}
 
 					/*Blocks with several class names - with Framework*/
