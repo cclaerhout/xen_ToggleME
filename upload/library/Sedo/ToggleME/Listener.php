@@ -210,7 +210,7 @@ class Sedo_ToggleME_Listener
 							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
 						}
 
-						$contents = preg_replace($search, $replace, $contents, 1, $count);
+						$contents = preg_replace($search, $replace, $contents);
 					}
 
 					/*Blocks with several class names - with Framework*/
