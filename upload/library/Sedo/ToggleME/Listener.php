@@ -142,6 +142,7 @@ class Sedo_ToggleME_Listener
 
 
 			case 'page_container_sidebar':	
+
 				//For sidebar blocks
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::bakePerms($style_session);
@@ -152,12 +153,33 @@ class Sedo_ToggleME_Listener
 					break;
 				}
 
-				$hasFramework = preg_match('#WidgetFramework#i', $contents);
-
-				if($hasFramework)
+				if(preg_match('#WidgetFramework#i', $contents))
 				{
+					/*Widget Renderer Framework*/
 					preg_match_all('#class="(?:section|[^"]*(?<!id=")(WidgetFramework_WidgetRenderer_\w+)[^"]*)?"#i', $contents, $matches_sb);
 					//preg_match_all('#class="[^"]*widget[^"]*(WidgetFramework_WidgetRenderer_\w+)[^"]*"#i', $contents, $matches_sb);
+					
+					/*Other widgets*/
+					preg_match_all('#<div class="\bsection\b(.*?)">(?![\s]*<div[^>]+WidgetFramework)#i', $contents, $matches_nofw);
+
+					if(!empty($matches_nofw[1]))
+					{
+						if(!isset($matches_sb[0]))
+						{
+							$matches_sb[0] = array();
+						}
+
+						if(!isset($matches_sb[1]))
+						{
+							$matches_sb[1] = array();
+						}
+				
+						foreach($matches_nofw[1] as $k => $val)
+						{
+							array_push($matches_sb[0], $matches_nofw[1][$k]); 
+							array_push($matches_sb[1], $val); 							
+						}
+					}
 				}
 				else
 				{
@@ -180,24 +202,27 @@ class Sedo_ToggleME_Listener
 
 				foreach ($matches_sb[1] as $sbKey => $match_sb)
 				{
-					preg_match('#\S+.*+#i', $match_sb, $blockId);
+					$isFramework = strpos($match_sb, 'WidgetFramework') !== false;
+					preg_match('#\S+.*+#i', $match_sb, $blockSrc);
 
 					if($sb_count[$match_sb] > 1)
 					{
-						list($blockName, $id) = self::_uniqBlockId($blockId[0], true);
+						list($blockName, $id, $blockSrc) = self::_uniqBlockId($blockSrc[0], true);
 						
-						$search = $matches_sb[0][$sbKey];
-						$replace = str_replace($match_sb, " {$blockName}", $matches_sb[0][$sbKey]);;
-						$contents = preg_replace('#'.preg_quote($search).'#i', $replace, $contents, 1);
-						$match_sb = str_replace($match_sb, " {$blockName}", $match_sb);
+						$target = $matches_sb[0][$sbKey];
+						$search = '#'.preg_quote($target, '#').'(?!\sn\d+)#i';
+						$replace = str_replace($match_sb, " {$blockSrc} n{$id}", $target);
+
+						$contents = preg_replace($search, $replace, $contents, 1);
+						$match_sb = str_replace($match_sb, " {$blockSrc} n{$id}", $match_sb);
 					}
 					else
 					{
-						list($blockName, $id) = self::_uniqBlockId($blockId[0], false);
+						list($blockName, $id) = self::_uniqBlockId($blockSrc[0], false);
 					}
-
+					
 					//Blocks with several class names
-					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND !$hasFramework)
+					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND !$isFramework)
 					{
 						$search = '#<div class="section' . $match_sb . '">[\r\n\t ]*.+$#mi';
 					
@@ -209,12 +234,11 @@ class Sedo_ToggleME_Listener
 						{
 							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
 						}
-
 						$contents = preg_replace($search, $replace, $contents);
 					}
 
 					/*Blocks with several class names - with Framework*/
-					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND $hasFramework)
+					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND $isFramework)
 					{
 						//look forward regex to exclude if the replace has already occurred => try to fix want two widgets have the same classname
 						$tempFix_hasSameClassName = '(?!<div id="tglblock_)';
@@ -270,24 +294,24 @@ class Sedo_ToggleME_Listener
 
 	protected static $_blockIdStack = array();
 		
-	protected static function _uniqBlockId($blockId, $applyCorrection)
+	protected static function _uniqBlockId($blockSrc, $applyCorrection)
 	{
 		$id = 0;
-		$blockName = $blockId;
+		$blockName = $blockSrc;
 		
-		if( isset(self::$_blockIdStack[$blockId]) )
+		if( isset(self::$_blockIdStack[$blockSrc]) )
 		{
-			$id = self::$_blockIdStack[$blockId]+1;
+			$id = self::$_blockIdStack[$blockSrc]+1;
 		}
 
 		if($applyCorrection)
 		{
-			$blockName = "{$blockId} n-{$id}";
+			$blockName = "{$blockSrc}-n-{$id}";
 		}
 		
-		self::$_blockIdStack[$blockId] = $id;
+		self::$_blockIdStack[$blockSrc] = $id;
 		
-		return array($blockName, $id);
+		return array($blockName, $id, $blockSrc);
 	}
 	
 	public static function BakeWidgetsOptions($excludes, $off)
