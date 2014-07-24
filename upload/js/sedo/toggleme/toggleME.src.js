@@ -1,6 +1,6 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 2.3*/
+	/*ToggleME 2.3.1*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
@@ -327,7 +327,43 @@
 	      	
 	      		//Wrap all next tags in parent
 	      		$hook.next().each(function(){
-	      			$(this).nextAll().wrapAll('<div class="toggleMEtarget" />');
+				var $this = $(this), 
+					$parent = $this.parent(),
+					$targetBlock = $this.nextAll(),
+					correction = 0,
+					$h3;
+
+				if(!$targetBlock.length){
+					$targetBlock = $this;
+					correction = 1;
+					
+					$this.prev(hook).remove();
+					return;
+				}
+				
+				/*
+				//Working but this kind of fix should be directly done from the html structure
+	      			if(correction){
+					$h3 = $targetBlock.find('h3');
+					
+					if($parent.hasClass('section')){
+						if(!$parent.hasClass(secondaryContent) && !$parent.hasClass(secondaryContentCollapsed)){
+							$parent.addClass(secondaryContent);
+							var $analog = $parent.find('.'+secondaryContent);
+							if($analog.length == 1){
+								$analog.removeClass(secondaryContent);						
+							}
+						}
+
+						$parent.removeClass('section').wrapAll($('<div />').addClass('section'));
+					}
+					if($h3.length == 1){
+						$h3.insertBefore($targetBlock);
+					}
+	      			}
+	      			*/
+
+	      			$targetBlock.wrapAll('<div class="toggleMEtarget" />');
 	      		});
 	      	
 	      		//Cookie check

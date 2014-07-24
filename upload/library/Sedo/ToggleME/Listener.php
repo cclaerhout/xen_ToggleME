@@ -181,7 +181,7 @@ class Sedo_ToggleME_Listener
 				foreach ($matches_sb[1] as $sbKey => $match_sb)
 				{
 					preg_match('#\S+.*+#i', $match_sb, $blockId);
-										
+
 					if($sb_count[$match_sb] > 1)
 					{
 						list($blockName, $id) = self::_uniqBlockId($blockId[0], true);
@@ -220,6 +220,7 @@ class Sedo_ToggleME_Listener
 						$tempFix_hasSameClassName = '(?!<div id="tglblock_)';
 						
 						$search = '#<div[^>]+?class="[^>]+?widget[^>]+?' . $match_sb . '[^>]+?>'. $tempFix_hasSameClassName . '#i';
+						/*$search = '#<div[^>]+?class="[^>]*?widget[^>]+?' . $match_sb . '[^>]+?>'. $tempFix_hasSameClassName . '#i';*/
 
 						if(!empty($OFF_withclass) AND preg_match('#\b' . $OFF_withclass . '\b#i', $match_sb))
 						{
