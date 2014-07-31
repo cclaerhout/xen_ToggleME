@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="2.3.1" version_id="24" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0 WIP EARLY RELEASE" version_id="24" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -191,14 +191,14 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="410"/>
     </option>
-    <option option_id="toggleME_Widgets_DefaultOff" edit_format="textbox" data_type="string" can_backup="1">
+    <option option_id="toggleME_Widgets_Disabled" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="520"/>
     </option>
-    <option option_id="toggleME_Widgets_Exclude" edit_format="textbox" data_type="string" can_backup="1">
-      <default_value>loginButton,visitorPanel</default_value>
+    <option option_id="toggleME_Widgets_Excluded" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>nwf_visitorpanel,nwf_loginbutton</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="510"/>
@@ -360,8 +360,8 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_explain" version_id="5" version_string="V.1.5"><![CDATA[Select which usergroups can use (and see) the  toggle function in  <b>Wrapped Subforums area</b>. <br /><span style="text-decoration:underline">Explanations:</span> if you've got many sub-forums inside a forum, they will appear above the threads. ToggleME will insert this button above them.<br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF" version_id="9" version_string="1.8"><![CDATA[Hide "Wrapped Sub-forums" by default]]></phrase>
     <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF_explain" version_id="9" version_string="1.8"><![CDATA[If you check that options, these sub-forums will be automatically hidden: the user will need to click on the button to display them.]]></phrase>
-    <phrase title="option_toggleME_Widgets_DefaultOff" version_id="8" version_string="1.7"><![CDATA[Default Closed Widgets]]></phrase>
-    <phrase title="option_toggleME_Widgets_DefaultOff_explain" version_id="9" version_string="1.9"><![CDATA[If you want to automatically close a widget when the page is loaded (<span style="text-decoration:underline">providing the user didn't chose to open it during his session</span>), just use this option. Each 'widget name' must be separated with a coma.<br />
+    <phrase title="option_toggleME_Widgets_Disabled" version_id="23" version_string="2.3.0"><![CDATA[Default Closed Widgets]]></phrase>
+    <phrase title="option_toggleME_Widgets_Disabled_explain" version_id="23" version_string="2.3.0"><![CDATA[If you want to automatically close a widget when the page is loaded (<span style="text-decoration:underline">providing the user didn't chose to open it during his session</span>), just use this option. Each 'widget name' must be separated with a coma.<br />
 <br />
 To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
 <br />
@@ -371,12 +371,12 @@ To find the 'widget name', you need to look inside the page code to see what is 
 <br />
 <span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
 Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>
-    <phrase title="option_toggleME_Widgets_Exclude" version_id="8" version_string="1.7"><![CDATA[Default Exclude Widgets]]></phrase>
-    <phrase title="option_toggleME_Widgets_Exclude_explain" version_id="9" version_string="1.9"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget name' must be separated with a coma.<br />
+    <phrase title="option_toggleME_Widgets_Excluded" version_id="23" version_string="2.3.0"><![CDATA[Default Exclude Widgets]]></phrase>
+    <phrase title="option_toggleME_Widgets_Excluded_explain" version_id="23" version_string="2.3.0"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget name' must be separated with a coma.<br />
 <br />
 To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
 <br />
-Option default values for this option: <b>loginButton,visitorPanel</b><br />
+Option default values for this option: <b>nwf_visitorpanel, nwf_loginbutton</b><br />
 <br />
 <span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
 Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>

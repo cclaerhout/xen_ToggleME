@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 2.3.1
+// Last modified: version 3.0.0 WIP Early release
 class Sedo_ToggleME_Listener
 {
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
@@ -142,7 +142,6 @@ class Sedo_ToggleME_Listener
 
 
 			case 'page_container_sidebar':	
-
 				//For sidebar blocks
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::bakePerms($style_session);
@@ -153,135 +152,206 @@ class Sedo_ToggleME_Listener
 					break;
 				}
 
-				if(preg_match('#WidgetFramework#i', $contents))
-				{
-					/*Widget Renderer Framework*/
-					preg_match_all('#class="(?:section|[^"]*(?<!id=")(WidgetFramework_WidgetRenderer_\w+)[^"]*)?"#i', $contents, $matches_sb);
-					//preg_match_all('#class="[^"]*widget[^"]*(WidgetFramework_WidgetRenderer_\w+)[^"]*"#i', $contents, $matches_sb);
-					
-					/*Other widgets*/
-					
-					//preg_match_all('#<div class="\bsection\b(.*?)">(?![\s]*<div[^>]+WidgetFramework)#i', $contents, $matches_nofw);
+				$excludedWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Excluded));
+				$disabledWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Disabled));
 
-					if(!empty($matches_nofw[1]))
-					{
-						if(!isset($matches_sb[0]))
-						{
-							$matches_sb[0] = array();
-						}
+				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);
+				$dom = new Zend_Dom_Query("<wip>{$contents}</wip>");
 
-						if(!isset($matches_sb[1]))
-						{
-							$matches_sb[1] = array();
-						}
-				
-						foreach($matches_nofw[1] as $k => $val)
-						{
-							array_push($matches_sb[0], $matches_nofw[1][$k]); 
-							array_push($matches_sb[1], $val); 							
-						}
-					}
-				}
-				else
-				{
-					preg_match_all('#<div class="\bsection\b(.*?)">#i', $contents, $matches_sb);
-				}
-					
-				$count = 1;
-					
-				$widgets_options = self::BakeWidgetsOptions($options->toggleME_Widgets_Exclude, $options->toggleME_Widgets_DefaultOff);
-				
-				//must be a string
-				$excludes_withclass = $widgets_options['excludes_withclass'];
-				$OFF_withclass  =  $widgets_options['OFF_withclass'];
-		
-				//must be an array AND only have numeric value (not full class name)
-				$excludes_noclass = $widgets_options['excludes_noclass'];
-				$OFF_noclass = $widgets_options['OFF_noclass'];
-
-				$sb_count = array_count_values($matches_sb[1]);
-
-				foreach ($matches_sb[1] as $sbKey => $match_sb)
-				{
-					$isFramework = strpos($match_sb, 'WidgetFramework') !== false;
-					preg_match('#\S+.*+#i', $match_sb, $blockSrc);
-
-					if($sb_count[$match_sb] > 1)
-					{
-						list($blockName, $id, $blockSrc) = self::_uniqBlockId($blockSrc[0], true);
-						
-						$target = $matches_sb[0][$sbKey];
-						$search = '#'.preg_quote($target, '#').'(?!\sn\d+)#i';
-						$replace = str_replace($match_sb, " {$blockSrc} n{$id}", $target);
-
-						$contents = preg_replace($search, $replace, $contents, 1);
-						$match_sb = str_replace($match_sb, " {$blockSrc} n{$id}", $match_sb);
-					}
-					else
-					{
-						list($blockName, $id) = self::_uniqBlockId($blockSrc[0], false);
-					}
-					
-					//Blocks with several class names
-					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND !$isFramework)
-					{
-						$search = '#<div class="section' . $match_sb . '">[\r\n\t ]*.+$#mi';
-					
-						if(!empty($OFF_withclass) AND preg_match('#\b' . $OFF_withclass . '\b#i', $match_sb))
-						{
-							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar tglSbOFF"></div>';
-						}
-						else
-						{
-							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
-						}
-						$contents = preg_replace($search, $replace, $contents);
-					}
-
-					/*Blocks with several class names - with Framework*/
-					if(!empty($match_sb) AND !preg_match('#\b' . $excludes_withclass . '\b#i', $match_sb) AND $isFramework)
-					{
-						//look forward regex to exclude if the replace has already occurred => try to fix want two widgets have the same classname
-						$tempFix_hasSameClassName = '(?!<div id="tglblock_)';
-						
-						$search = '#<div[^>]+?class="[^>]+?widget[^>]+?' . $match_sb . '[^>]+?>'. $tempFix_hasSameClassName . '#i';
-						/*$search = '#<div[^>]+?class="[^>]*?widget[^>]+?' . $match_sb . '[^>]+?>'. $tempFix_hasSameClassName . '#i';*/
-
-						if(!empty($OFF_withclass) AND preg_match('#\b' . $OFF_withclass . '\b#i', $match_sb))
-						{
-							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar tglSbOFF"></div>';
-						}
-						else
-						{
-							$replace = '$0<div id="tglblock_'. $blockName .'" class="tglSidebar"></div>';
-						}
+				$widgetNodes = $dom->query('wip > div');
+				$doc = $widgetNodes->getDocument();
+				$doc->removeChild($doc->firstChild);
+				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
 			
-						$contents = preg_replace($search, $replace, $contents, 1);
-					}						
-					/*Blocks with no class name except "section"*/
-					elseif(empty($match_sb) AND !in_array($count, $excludes_noclass))
+				foreach($widgetNodes as $widgetNode)
+				{
+					if(empty($widgetNode->attributes))
 					{
-						$search = '#<div class="section">([\r\n\t ]*.+)$#mi';							
-							
-						if(in_array($count, $OFF_noclass))
+						continue;
+					}
+
+					/*ROOT NODE*/
+						$rootId = $widgetNode->getAttribute('id');
+						$rootClass = $widgetNode->getAttribute('class');
+
+						if(self::hasNoToggleClass($rootClass))
 						{
-							$replace = '<div class="section tglblock_' . $count . '">$1<div id="_tglblock_'. $count .'" class="tglSidebar tglSbOFF"></div>';			
+							continue;
+						}
+
+						/*WFMR + SECTION*/
+						$isWfmr = null;
+						$sectionNode = null;
+					
+						if($widgetFrameworkEnabled)
+						{
+							list($isWfmr, $wfmrId, $wfmrClass, $wfmrChild) = self::isWfmrWidget($rootId, $rootClass);
+						}
+					
+						$sectionClass = self::isSectionClass($rootClass);
+						if($sectionClass)
+						{
+							$sectionNode = $widgetNode;
+						}
+
+					/*CHILD NODE*/			
+						$childId = null;
+						$childClass = null;
+		
+						if($widgetNode->hasChildnodes() && !$isWfmr)
+						{
+							//$childNodes = $widgetNode->getElementsByTagName('div');
+							$childNode = $widgetNode->childNodes->item(1);
+	
+							if($childNode->tagName == 'div')
+							{
+								$childId = $childNode->getAttribute('id');
+								$childClass = $childNode->getAttribute('class');
+
+								if(self::hasNoToggleClass($childClass))
+								{
+									continue;
+								}
+	
+								/*WFMR + SECTION*/
+								if($widgetFrameworkEnabled)
+								{
+									list($isWfmr, $wfmrId, $wfmrClass, $wfmrChild) = self::isWfmrWidget($childId, $childClass, true);
+								}
+	
+								if(!$sectionNode && !$isWfmr)
+								{
+									$sectionClass = self::isSectionClass($childClass);
+									if($sectionClass)
+									{
+										$sectionNode = $childNode;
+									}
+								}
+							}
+						}
+
+					/*Manage node settings*/
+					$node = null;
+
+					if($isWfmr)
+					{
+						$idNum = "$wfmrId";
+						$idName = $wfmrClass;
+						$className = $wfmrClass;
+
+						if(!$wfmrChild)
+						{
+							$h3 = $widgetNode->getElementsByTagName('h3')->item(0);
+							$node = ($h3) ? $h3->parentNode : null;
 						}
 						else
 						{
-							$replace = '<div class="section tglblock_' . $count . '">$1<div id="_tglblock_'. $count .'" class="tglSidebar"></div>';
+							$node = $childNode;
 						}
-		
-						$contents = preg_replace($search, $replace, $contents, 1);
-						$count++;					
 					}
+					elseif($sectionNode)
+					{
+						$h3 = $sectionNode->getElementsByTagName('h3')->item(0);
+						$node = ($h3) ? $h3->parentNode : null;
+						$idName = $sectionClass;
+						$className = $sectionClass;
+					}
+
+					if(!$node)
+					{
+						continue;
+					}
+
+					$idName = self::_uniqWidgetId($idName);//To do: viewName for empty
+					$className = strtolower($className);
+
+					if(in_array($idName, $excludedWidgetIds))
+					{
+						continue;
+					}
+
+					$newNode =  $node->ownerDocument->createElement('div');
+					$newNode->setAttribute('id', $idName);
+
+					$classToAdd = "tglSidebar {$className}";
+					
+					if(in_array($idName, $disabledWidgetIds))
+					{
+						$classToAdd .= " tglSbOFF";
+					}
+					
+					$newNode->setAttribute('class', $classToAdd);
+					$node->insertBefore($newNode, $node->firstChild);
 				}
-				break;
+				
+				$html = $widgetNodes->getDocument()->saveHTML();
+				
+				/*Get rid of the body tag: too difficult to do it with the dom...*/
+				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
+				//$html = substr($html, 5, -7);
+				
+				$contents = $html;
+
+			/*
+				http://fr2.php.net/manual/en/domnode.c14n.php
+				http://stackoverflow.com/questions/5914643/writing-changes-back-to-a-zend-dom-query-object
+			*/
+			//Zend_Debug::dump($html);
+			break;
+
 		}			
 	}
 
     	protected static $_counter = 0;
-    
+
+	public static function isWfmrWidget($id, $class, $isChild = false)
+	{
+		$falseFallback = array(false, false, false, $isChild);
+
+		if(empty($id) || empty($class))
+		{
+			return $falseFallback;
+		}
+		
+		$wdgPos = strpos($id, 'widget-');
+		
+		if($wdgPos === false || $wdgPos != 0)
+		{
+			return $falseFallback;
+		}
+
+		$id = substr($id, 7);
+
+		if(preg_match('#.*WidgetRenderer_(\w+).*#i', $class, $match))
+		{
+			$className = "wf_$match[1]";
+		}
+		else
+		{
+			$className = "wf_$id";
+		}
+		
+		return array(true, $id, $className, $isChild);
+	}
+
+	public static function isSectionClass($class)
+	{
+		if(preg_match('#.*\bsection\b[ ]?([\S]*).*#i', $class, $match))
+		{
+			$remainingClass = trim($match[1]);
+			return "nwf_{$remainingClass}";
+		}
+		
+		return false;
+	}
+
+	public static function hasNoToggleClass($string)
+	{
+		$class = explode(' ', $string);
+
+		return in_array('noToggle', $class);
+	}
+	
     	public static function makeMeUniqRegex($matches, $separator = '')
 	{
 		self::$_counter++;
@@ -293,94 +363,31 @@ class Sedo_ToggleME_Listener
 		self::$_counter = 0;
 	}
 
-	protected static $_blockIdStack = array();
+	protected static $_widgetIds = array();
 		
-	protected static function _uniqBlockId($blockSrc, $applyCorrection)
+	protected static function _uniqWidgetId($widgetId)
 	{
-		$id = 0;
-		$blockName = $blockSrc;
+		$widgetId = strtolower($widgetId);
+		$modifyId = false;
 		
-		if( isset(self::$_blockIdStack[$blockSrc]) )
+		if( isset(self::$_widgetIds[$widgetId]) )
 		{
-			$id = self::$_blockIdStack[$blockSrc]+1;
+			self::$_widgetIds[$widgetId] = self::$_widgetIds[$widgetId]+1;
+			$modifyId = true;
+		}
+		else
+		{
+			self::$_widgetIds[$widgetId] = 0;
 		}
 
-		if($applyCorrection)
+		if($modifyId)
 		{
-			$blockName = "{$blockSrc}-n-{$id}";
+			$widgetId = "{$widgetId}-n-" . self::$_widgetIds[$widgetId];
 		}
 		
-		self::$_blockIdStack[$blockSrc] = $id;
-		
-		return array($blockName, $id, $blockSrc);
+		return $widgetId;
 	}
 	
-	public static function BakeWidgetsOptions($excludes, $off)
-	{
-		//Init
-		$output['excludes_withclass'] = '';
-		$output['OFF_withclass'] = '';		
-		$output['excludes_noclass'] = array();
-		$output['OFF_noclass'] = array();
-
-		//Bake excludes
-		$wip_excludes = explode(',', $excludes);
-		$i = 1;
-		foreach ($wip_excludes as $exclude)
-		{
-			if(!empty($exclude))
-			{
-				if(preg_match('#tglblock_(\d+)#ui', $exclude ,$capture))
-				{
-					$output['excludes_noclass'][] = $capture[1];
-				}
-				else
-				{
-					if($i == 1)
-					{
-						$output['excludes_withclass'] .= $exclude;
-					}
-					else
-					{
-						$output['excludes_withclass'] .= '|' . $exclude;
-					}
-				}
-			}
-			$i++;
-		}
-		
-		//Bake Off by default
-		$wip_off = explode(',', $off);
-		$i = 1;
-		
-		foreach($wip_off as $item)
-		{
-			if(empty($item))
-			{
-				continue;
-			}
-
-			if(preg_match('#tglblock_(\d+)#ui', $item ,$capture))
-			{
-				$output['OFF_noclass'][] = $capture[1];
-			}
-			else
-			{
-				if($i == 1)
-				{
-					$output['OFF_withclass'] .= $item;
-				}
-				else
-				{
-					$output['OFF_withclass'] .= '|' . $item;
-				}
-				$i++;
-			}
-		}
-
-		return $output;	
-	}
-    
 	public static function template_postrender($templateName, &$content, array &$containerData, XenForo_Template_Abstract $template)
 	{
 		switch ($templateName) 
