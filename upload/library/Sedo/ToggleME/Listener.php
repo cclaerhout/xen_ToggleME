@@ -160,7 +160,8 @@ class Sedo_ToggleME_Listener
 					//preg_match_all('#class="[^"]*widget[^"]*(WidgetFramework_WidgetRenderer_\w+)[^"]*"#i', $contents, $matches_sb);
 					
 					/*Other widgets*/
-					preg_match_all('#<div class="\bsection\b(.*?)">(?![\s]*<div[^>]+WidgetFramework)#i', $contents, $matches_nofw);
+					
+					//preg_match_all('#<div class="\bsection\b(.*?)">(?![\s]*<div[^>]+WidgetFramework)#i', $contents, $matches_nofw);
 
 					if(!empty($matches_nofw[1]))
 					{
