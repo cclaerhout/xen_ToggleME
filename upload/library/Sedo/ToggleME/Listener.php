@@ -1,127 +1,224 @@
 <?php
-// Last modified: version 3.0.0 WIP Early release
+// Last modified: version 3.0.0 Beta 1
 class Sedo_ToggleME_Listener
 {
+	public static function template_create(&$templateName, array &$params, XenForo_Template_Abstract $template)
+	{
+		switch($templateName)
+		{
+			case "PAGE_CONTAINER":
+				$visitorStyle = (isset($params['visitorStyle'])) ? $params['visitorStyle'] : false;
+			
+				$config = array(
+					'state' => (self::forcePostbitExtraInfoDisplay()) ? 1 : (XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_State') == 'opened') ? 1 : 0,
+					'perms' => self::getPerms($visitorStyle),
+					'pureCss' => self::isPureCssMode()
+				);
+		
+				$params['toggleME'] = $config;
+			break;
+		}
+	}
+
 	public static function template_hook($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
 	{
 		switch ($hookName) 
 		{
-			case 'page_container_js_body':
-				$options = XenForo_Application::get('options');
-				$easing = $options->toggleme_effect_easing;
-				$duration = $options->toggleme_effect_duration;
-				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? 1 : 0;
-				
-				if(self::forcePostbitExtraInfoDisplay())
-				{
-					$state = 1;
-				}
-		
-				$search = '#(\s+)(_ignoredUsers:)#i';
-				$replace = "$1toogleMeConfig:{ effect: \"$easing\", duration: $duration, postbit_state: $state },$1$2";
-				
-				$contents = preg_replace($search, $replace, $contents);
-				break;
-			case 'page_container_head':
-				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
-
-				if($perms['quickCheck'] !== true)
-				{
-					break;
-				}
-
-				$viewParams = array();
-
-				$contents .= $template->create('toggleme_page_container_js', $viewParams);
-				break;
 			case 'forum_list_nodes':
 				//For categories using by addons or styles
 				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
+				$viewName = $template->getParam('viewName');				
+				$perms = self::getPerms($style_session);
 				$options = XenForo_Application::get('options');
-				
+				$isAdmin = self::isAdmin();
+				$pureCssMode = self::isPureCssMode();
+			
 				if(empty($perms['toggle_forumhome_usr']) || !$options->toggleME_selected_areas['node_categories'])
 				{
 					break;
 				}
 				
-				/***
-				*	Let's create the foundation of the ID... based on the addition of each number of the crc of the full_url
-				*	Why ? I don't know if the hook 'forum_list_nodes' is only displayed in the forumhome page. In the javascript
-				*	file, I'm using 'index' function to count the ID of the category (that doesn't belong to XenForo, ie: Chatbox). 
-				*	Without this part of code, if the first category W of page A is closed, then the first category Y will also be 
-				*	closed on page B.
-				***/
-			
-				$full_url = $template->getParam('requestPaths');
-				$full_url = $full_url['fullBasePath'];
-				$CRC_ID = array_sum(str_split(crc32($full_url)));
-			
-				//Check if the collapsed categories must use another class
-				$tglOffClass = '';
-				if(!empty($options->toggleME_Categories_CloseClass_Off))
-				{
-					$tglOffClass = ' tglDnt'; //tlg Don't!
-				}
-					
-				//The regex backreference (?<!"></div>) is to avoid redundancy with the similar replacement inside the template_postrender function
-				$search[] = '#(?<!"></div>)<div class="categoryText">#i';
-				$replace[] = '<div id="_crc_' . $CRC_ID . '-" class="toggle_me tglWchild' . $tglOffClass. '"></div>$0';
-				$search[] = '#<li class="(?:.+?)?groupNoChildren(?:.*?)?(node_[\d]+)(?:.+?)?">\n\s+?<div class="(?:.+?)?categoryStrip(?:.+?)?>#i';
-				$replace[] = '$0<div data-id ="_$1" class="toggle_me tglNOchild' . $tglOffClass. '"></div>';
-			
-				$contents = preg_replace($search, $replace, $contents);
-						
-				//Let's now finalize the IDs of main categories adding to them their 'replacement order' number 
-				self::resetCounter();
-				$contents = preg_replace_callback('#_crc_\d{1,9}-#', array('Sedo_ToggleME_Listener', 'makeMeUniqRegex'), $contents);
+				/*Settings*/
+				$closed_xenCats = $options->toggleME_DefaultOff_XenCat;
+				$closed_extraCats = array_map('trim', explode(',', $options->toggleME_DefaultOff_ExtraCat));
 
-				// Default Closed EXTRA Categories
-				if ($options->toggleME_DefaultOff_ExtraCat)
+				/*Custom Language*/
+				$langCheck = Sedo_ToggleME_Helper_CustomLanguage::isEnabled();
+				if($langCheck)
 				{
-					$closed_cats = explode(',', $options->toggleME_DefaultOff_ExtraCat);
+					$userBrowserLanguage = self::getClientPreferedLanguage();
+					$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
 
-					if(Sedo_ToggleME_Helper_CustomLanguage::isEnabled())
+					if(!isset($languageCategories[$userBrowserLanguage]))
 					{
-						$userBrowserLanguage = self::getClientPreferedLanguage();
-						$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
-						$proceed = true;
-	
-						if(!isset($languageCategories[$userBrowserLanguage]))
+						$langCheck = !$options->toggleME_lang_cat_fallback_open;
+						$languageCategoriesToKeepOpen = array();
+					}
+					else
+					{
+						$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
+						unset($languageCategories[$userBrowserLanguage]);
+					}
+
+					$languageCategoriesToClose = array();
+
+					foreach($languageCategories as $tempCats)
+					{
+						$languageCategoriesToClose = array_merge($languageCategoriesToClose, $tempCats);
+					}
+						
+					$languageCategoriesToClose = array_diff($languageCategoriesToClose, $languageCategoriesToKeepOpen); 
+						
+					$langCloseAllCategories = Sedo_ToggleME_Helper_CustomLanguage::closeAllCategories();
+
+					if(is_array($langCloseAllCategories))
+					{
+						if(!empty($langCloseAllCategories))
 						{
-							$languageCategoriesToKeepOpen = array();
-							$proceed = !$options->toggleME_lang_cat_fallback_open;
+							$languageCategoriesToKeepOpen = array_merge($languageCategoriesToKeepOpen, $langCloseAllCategories);
+							$langCloseAllCategories = true;
 						}
 						else
 						{
-							$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
-							unset($languageCategories[$userBrowserLanguage]);
-						}	
-
-						if($proceed)
-						{
-							foreach($languageCategories as $tempCats)
-							{
-								$closed_cats = array_merge($closed_cats , $tempCats);
-							}
+							$langCloseAllCategories = false;							
 						}
 					}
+				}
 
-					foreach ($closed_cats as $closed_cat)
+				/*Dom management*/
+				$dom = new Zend_Dom_Query("<wip>{$contents}</wip>");
+
+				$listNodes = $dom->query('wip > ol > li');
+				$doc = $listNodes->getDocument();
+				$doc->removeChild($doc->firstChild);
+				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
+
+				foreach($listNodes as $listNode)
+				{
+					/*Try to cach the categoryStrip element*/
+					$innerNodes = $listNode->getElementsByTagName('*');
+					$categoryStripNode = null;
+
+					foreach($innerNodes as $divNode)
 					{
-						$search = '<div id="' . $closed_cat . '" class="toggle_me';
-						$replace = $search . ' tglWOFF';
-						$contents = str_replace($search, $replace, $contents);
+						$divNodeClass = $divNode->getAttribute('class');
+						if(strpos($divNodeClass, 'categoryStrip') !== false)
+						{
+							$categoryStripNode = $divNode;
+							break;
+						}
+					}
+					
+					if($categoryStripNode == null)
+					{
+						continue;
+					}
+					
+					/*Settings*/
+					$nodeClass = $listNode->getAttribute('class');
+					$hasChildren = (strpos($nodeClass, 'groupNoChildren') === false);
+					list($nodeId, $isXenId) = self::_getNodeId($nodeClass, $viewName);
+					$idName = self::_uniqNodeId($nodeId);
+					
+					$classTarget = ($hasChildren) ? 'toggle_me tglWchild' : 'toggle_me tglNOchild';
+					
+					if($pureCssMode)
+					{
+						$classTarget .= ' pcss';
+					}
+					
+					if($options->toggleME_Categories_CloseClass_Off)
+					{
+						$classTarget .= ' tglDnt';
+					}
+					
+					if($isXenId)
+					{
+						$idName = "_node_{$idName}";
+						
+						if($closed_xenCats && in_array($nodeId, $closed_xenCats))
+						{
+							$classTarget .= ' tglWOFF';
+						}
+
+						if($langCheck && 
+							(
+								in_array($nodeId, $languageCategoriesToClose) ||
+								($langCloseAllCategories && !in_array($nodeId, $languageCategoriesToKeepOpen))
+							)
+						)
+						{
+							$classTarget .= ' tglWOFF';
+						}
+					}
+					else
+					{
+						if($closed_extraCats && in_array($idName, $closed_extraCats))
+						{
+							$classTarget .= ' tglWOFF';
+						}
+						
+						if($langCheck && 
+							(
+								in_array($idName, $languageCategoriesToClose) ||
+								($langCloseAllCategories && !in_array($idName, $languageCategoriesToKeepOpen))
+							)
+						)
+						{
+							$classTarget .= ' tglWOFF';
+						}						
+					}
+
+					/*New node creation*/
+					$newNode =  $listNode->ownerDocument->createElement('div');
+					$newNode->setAttribute('id', $idName);
+					$newNode->setAttribute('class', $classTarget);					
+
+					if($pureCssMode)
+					{
+						$pureCssSpanNode = $listNode->ownerDocument->createElement('span');
+						$newNode->appendChild($pureCssSpanNode); 
+					}
+
+					/*New node insertion*/
+					if($hasChildren)
+					{
+						$categoryStripNode->insertBefore($newNode, $categoryStripNode->firstChild);
+					}
+					else
+					{
+						$categoryStripNode->appendChild($newNode);
+					}
+					
+					if($isAdmin && $options->toggleME_debug_displayCategoryId)
+					{
+						$textInfo = "ID: {$idName} ";
+						$textInfo .= ($isXenId) ? "(Xen Node)" : "(Manual node)";
+					
+						$infoNode =  $listNode->ownerDocument->createElement('div');
+						$infoNodeText = $listNode->ownerDocument->createTextNode($textInfo);
+						$infoNode->appendChild($infoNodeText); 
+						$infoNode->setAttribute('class', "debug_tglm_info");
+						$listNode->insertBefore($infoNode, $listNode->firstChild);
 					}
 				}
-				break;
+
+				$html = $listNodes->getDocument()->saveHTML();
+				
+				/*Get rid of the body tag: too difficult to do it with the dom...*/
+				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
+				//$html = substr($html, 5, -7);
+
+				$contents = $html;
+			break;
+				
 			case 'message_user_info_text':		 
 				//For postbit area
 				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
+				$perms = self::getPerms($style_session);
 				$options = XenForo_Application::get('options');
 				$position = $options->toggleME_Usergroups_Postbit_Position;
+				$pureCssMode = self::isPureCssMode();
 				
 				if(empty($perms['toggle_postbit_usr']) || !$options->toggleME_selected_areas['postbit_extra'])
 				{
@@ -135,17 +232,25 @@ class Sedo_ToggleME_Listener
 					$search = '#<a[^>]+?class="username"[^>]+?>.*?</a>#i';
 				}
 
-				$replace = "$0<div class='tglPosbit pos_$position'></div>";
+				if($pureCssMode)
+				{
+					$replace = "$0<div class='tglPosbit pos_$position pcss'><span></span></div>";
+				}
+				else
+				{
+					$replace = "$0<div class='tglPosbit pos_$position'></div>";				
+				}
 				
 				$contents = preg_replace($search, $replace, $contents);	
 				break;				
 
-
 			case 'page_container_sidebar':	
 				//For sidebar blocks
 				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
-				$options = XenForo_Application::get('options');	
+				$perms = self::getPerms($style_session);
+				$options = XenForo_Application::get('options');
+				$isAdmin = self::isAdmin();
+				$debugOn = $options->toggleME_debug_displayWidgetId;
 
 				if(empty($perms['toggle_widgets_usr']) || !$options->toggleME_selected_areas['widgets'])
 				{
@@ -154,7 +259,8 @@ class Sedo_ToggleME_Listener
 
 				$excludedWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Excluded));
 				$disabledWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Disabled));
-
+				$pureCssMode = self::isPureCssMode();
+				
 				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);
 				$dom = new Zend_Dom_Query("<wip>{$contents}</wip>");
 
@@ -279,9 +385,25 @@ class Sedo_ToggleME_Listener
 					{
 						$classToAdd .= " tglSbOFF";
 					}
+
+					if($pureCssMode)
+					{
+						$classToAdd .= ' pcss';
+						$pureCssSpanNode = $node->ownerDocument->createElement('span');
+						$newNode->appendChild($pureCssSpanNode); 
+					}
 					
 					$newNode->setAttribute('class', $classToAdd);
 					$node->insertBefore($newNode, $node->firstChild);
+					
+					if($isAdmin && $debugOn)
+					{
+						$infoNode =  $node->ownerDocument->createElement('div');
+						$infoNodeText = $node->ownerDocument->createTextNode("ID: {$idName}");
+						$infoNode->appendChild($infoNodeText); 
+						$infoNode->setAttribute('class', "debug_tglm_info");
+						$node->insertBefore($infoNode, $node->parent);
+					}
 				}
 				
 				$html = $widgetNodes->getDocument()->saveHTML();
@@ -292,17 +414,13 @@ class Sedo_ToggleME_Listener
 				
 				$contents = $html;
 
-			/*
-				http://fr2.php.net/manual/en/domnode.c14n.php
-				http://stackoverflow.com/questions/5914643/writing-changes-back-to-a-zend-dom-query-object
-			*/
-			//Zend_Debug::dump($html);
+				/***
+				 *	http://fr2.php.net/manual/en/domnode.c14n.php
+				 *	http://stackoverflow.com/questions/5914643/writing-changes-back-to-a-zend-dom-query-object
+				 ***/
 			break;
-
 		}			
 	}
-
-    	protected static $_counter = 0;
 
 	public static function isWfmrWidget($id, $class, $isChild = false)
 	{
@@ -352,19 +470,7 @@ class Sedo_ToggleME_Listener
 		return in_array('noToggle', $class);
 	}
 	
-    	public static function makeMeUniqRegex($matches, $separator = '')
-	{
-		self::$_counter++;
-		return $matches[0] . $separator . self::$_counter;
-	}
-	
-	public static function resetCounter()
-	{
-		self::$_counter = 0;
-	}
-
 	protected static $_widgetIds = array();
-		
 	protected static function _uniqWidgetId($widgetId)
 	{
 		$widgetId = strtolower($widgetId);
@@ -387,170 +493,51 @@ class Sedo_ToggleME_Listener
 		
 		return $widgetId;
 	}
-	
-	public static function template_postrender($templateName, &$content, array &$containerData, XenForo_Template_Abstract $template)
+
+	protected static function _getNodeId($nodeClass, $viewName = null)
 	{
-		switch ($templateName) 
+		if(preg_match('#node_(?P<id>\d{1,9})#', $nodeClass, $match))
 		{
-			case 'thread_view':
-			case 'conversation_view':
-				//This part could be deleted but let's keep this if admins want to use css to customize the hidden postbit
-				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
-				$options = XenForo_Application::get('options');	
-				$state = ($options->toggleME_Usergroups_Postbit_State == 'opened') ? '' : 'toggleHidden';
-
-				if(self::forcePostbitExtraInfoDisplay($perms))
-				{
-					$state = '';
-				}
-			
-				if($perms['toggle_postbit_usr'] || $options->toggleME_selected_areas['postbit_extra'])
-				{
-					$content = str_replace('<div class="extraUserInfo">', "<div class=\"extraUserInfo $state\">", $content);
-				}
-				break;
-			case 'forum_view':
-				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
-				$options = XenForo_Application::get('options');	
-			
-				if(!$perms['toggle_wrappednoded_usr'] || !$options->toggleME_selected_areas['node_subforums'])
-				{
-					break;
-				}
-				
-				$NodeId = $template->getParam('nodeList');
-
-				if(!$NodeId) // Needed conditional to avoid a error message on other nodes who don't have the "parentNodeId" variable
-				{
-					break;	
-				}
-
-				//Close by default
-				$tglNodeOffClass = '';
-				if($options->toggleME_Usergroups_Wrapped_Nodes_OFF)
-				{
-					$tglNodeOffClass = ' tglNodeOff';
-				}
-					
-				$NodeId = $NodeId['parentNodeId'];
-				$search = '#(<ol.+?class="nodeList.+">)#';
-				$replace = '$1
-					<div id="tglnode_' . $NodeId . '" class="tglNodelist_forumview' . $tglNodeOffClass . '">
-						<span class="toggleME_Expand" style="display:none">' . new XenForo_Phrase('toggleMe_Expand') . '</span>
-						<span class="toggleME_Collapse" style="display:none">' . new XenForo_Phrase('toggleMe_Collapse') . '</span>
-					</div>';
-		
-				$content = preg_replace($search, $replace, $content);
-				break;
-			case 'node_category_level_1':
-				//For categories using by xenForo
-				$style_session = $template->getParam('visitorStyle');
-				$perms = self::bakePerms($style_session);
-				$options = XenForo_Application::get('options');
-				
-				$langCheck = Sedo_ToggleME_Helper_CustomLanguage::isEnabled();
-				
-				if($langCheck)
-				{
-					$userBrowserLanguage = self::getClientPreferedLanguage();
-
-					$languageCategories = Sedo_ToggleME_Helper_CustomLanguage::getLanguageConfig();
-
-					if(!isset($languageCategories[$userBrowserLanguage]))
-					{
-						$langCheck = !$options->toggleME_lang_cat_fallback_open;
-						$languageCategoriesToKeepOpen = array();
-					}
-					else
-					{
-						$languageCategoriesToKeepOpen = $languageCategories[$userBrowserLanguage];
-						unset($languageCategories[$userBrowserLanguage]);
-					}
-
-					$languageCategoriesToClose = array();
-					foreach($languageCategories as $tempCats)
-					{
-						$languageCategoriesToClose = array_merge($languageCategoriesToClose, $tempCats);
-					}
-						
-					$languageCategoriesToClose = array_diff($languageCategoriesToClose, $languageCategoriesToKeepOpen); 
-						
-					$langCloseAllCategories = Sedo_ToggleME_Helper_CustomLanguage::closeAllCategories();
-
-					if(is_array($langCloseAllCategories))
-					{
-						if(!empty($langCloseAllCategories))
-						{
-							$languageCategoriesToKeepOpen = array_merge($languageCategoriesToKeepOpen, $langCloseAllCategories);
-							$langCloseAllCategories = true;
-						}
-						else
-						{
-							$langCloseAllCategories = false;							
-						}
-					}
-				}
-			
-				if(!$perms['toggle_forumhome_usr'] || !$options->toggleME_selected_areas['node_categories'])
-				{
-					break;
-				}
-
-				$withChildClasses = 'toggle_me tglWchild';
-				$withoutChildClasses = 'toggle_me tglNOchild';
-
-				if($options->toggleME_Categories_CloseClass_Off)
-				{
-					$withChildClasses .= ' tglDnt';
-					$withoutChildClasses .= ' tglDnt';
-				}
-			
-				//Check if the collapsed categories must use another class
-				preg_match_all('#<li.+?class=".+?node_(?P<id>\d{1,9}).+?(?P<search><div class="categoryText">)#si', 
-					$content, 
-					$matches,
-					PREG_SET_ORDER
-				);
-
-				if(is_array($matches))
-				{
-					foreach ($matches as $match)
-					{
-						if($options->toggleME_DefaultOff_XenCat && in_array($match['id'], $options->toggleME_DefaultOff_XenCat))
-						{
-							$withChildClasses .= ' tglWOFF';
-						}
-
-						if($langCheck && 
-							(
-								in_array($match['id'], $languageCategoriesToClose) ||
-								($langCloseAllCategories && !in_array($match['id'], $languageCategoriesToKeepOpen))
-							)
-						)
-						{
-							$withChildClasses .= ' tglWOFF';
-						}
-
-						$content = preg_replace(
-							'#<div class="categoryText">#i', 
-							'<div id="_node_' . $match['id'] . '" class="' . $withChildClasses . '"></div>$0', 
-							$content
-						);
-					}
-				}
-							
-				$search = '#(<li class="(?:.+?)?groupNoChildren(?:.+?)?">\n\s+?<div class="(?:.+?)?categoryStrip(?:.+?)?>)#i';
-				$replace = '$1<div class="' . $withoutChildClasses . '"></div>';
-
-				$content = preg_replace($search, $replace, $content);
-			break;
+			return array($match['id'], true);
 		}
+
+		$fallbackName = str_replace('XenForo_ViewPublic_', '', $viewName);
+
+		return array($fallbackName, false);
 	}
 
-	public static function bakePerms($style_session)
+	protected static $_nodeIds = array();
+	protected static function _uniqNodeId($nodeId)
 	{
+		$nodeId = strtolower($nodeId);
+		$modifyId = false;
+		
+		if( isset(self::$_nodeIds[$nodeId]) )
+		{
+			self::$_nodeIds[$nodeId] = self::$_nodeIds[$nodeId]+1;
+			$modifyId = true;
+		}
+		else
+		{
+			self::$_nodeIds[$nodeId] = 0;
+		}
+
+		if($modifyId)
+		{
+			$nodeId = "{$nodeId}-n-" . self::$_nodeIds[$nodeId];
+		}
+		
+		return $nodeId;
+	}
+	
+	protected static $_permsCache;
+	public static function getPerms($style_session)
+	{
+		if(self::$_permsCache)
+		{
+			return self::$_permsCache; 
+		}
+		
 		$options = XenForo_Application::get('options');
 
 		//Init perms
@@ -607,16 +594,25 @@ class Sedo_ToggleME_Listener
 		
 		if($options->toggleME_selected_areas['node_subforums'])
 		{
-			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Wrapped_Nodes);
-			$perms['toggle_wrappednoded_usr'] = (empty($chkusr)) ? false : true;
-			$perms['quickCheck'] = true;
+			/*2014-08-11: done in templates*/
+			//$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Wrapped_Nodes);
+			//$perms['toggle_wrappednoded_usr'] = (empty($chkusr)) ? false : true;
+			$perms['quickCheck'] = true;		
 		}
 		
+		self::$_permsCache = $perms;
 		return $perms;
 	}
 	
+
+	protected static $_postbitForcedDisplay;
 	public static function forcePostbitExtraInfoDisplay($perms = false)
 	{
+		if(self::$_postbitForcedDisplay)
+		{
+			return self::$_postbitForcedDisplay;
+		}
+
 		if(!empty($perms['visitorUserGroupIds']))
 		{
 			$visitorUserGroupIds = $perms['visitorUserGroupIds'];
@@ -634,7 +630,8 @@ class Sedo_ToggleME_Listener
 			return false;
 		}
 		
-		return (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
+		self::$_postbitForcedDisplay = $postbitForcedDisplay = (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
+		return $postbitForcedDisplay;
 	}
 	
 
@@ -653,6 +650,30 @@ class Sedo_ToggleME_Listener
 		}
 
 		return $clientPreferedLanguage;
+	}
+
+	protected static $_isAdmin;	
+	public static function isAdmin()
+	{
+		if(!self::$_isAdmin)
+		{
+			$visitor = XenForo_Visitor::getInstance();
+			self::$_isAdmin = $visitor->is_admin;
+		}
+
+		return self::$_isAdmin;
+	}
+	
+
+	protected static $_isPureCssMode;	
+	public static function isPureCssMode()
+	{
+		if(!self::$_isPureCssMode)
+		{
+			self::$_isPureCssMode = XenForo_Template_Helper_Core::styleProperty('toggleMe_pureCssMode');
+		}
+
+		return self::$_isPureCssMode;
 	}
 }
 /*

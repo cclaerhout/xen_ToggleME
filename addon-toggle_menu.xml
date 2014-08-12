@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0 WIP EARLY RELEASE" version_id="24" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0 BETA 1" version_id="25" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -114,8 +114,8 @@
   <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
+    <listener event_id="template_create" execute_order="10" callback_class="Sedo_ToggleME_Listener" callback_method="template_create" active="1" hint="PAGE_CONTAINER" description="Template create event - PAGE_CONTAINER"/>
     <listener event_id="template_hook" execute_order="10" callback_class="Sedo_ToggleME_Listener" callback_method="template_hook" active="1" hint="" description="Listener for templates hooks"/>
-    <listener event_id="template_post_render" execute_order="20" callback_class="Sedo_ToggleME_Listener" callback_method="template_postrender" active="1" hint="" description="Listener for templates (post_render)"/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
@@ -202,6 +202,18 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="510"/>
+    </option>
+    <option option_id="toggleME_debug_displayCategoryId" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="290"/>
+    </option>
+    <option option_id="toggleME_debug_displayWidgetId" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="590"/>
     </option>
     <option option_id="toggleME_enabled" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>true</default_value>
@@ -308,9 +320,13 @@ easeOutBounce=easeOutBounce</edit_format_params>
     <phrase title="option_group_toggleME_Language_description" version_id="21" version_string="2.2.5"><![CDATA[ToggleME by languages Options]]></phrase>
     <phrase title="option_toggleME_Categories_CloseClass_Off" version_id="9" version_string="1.8"><![CDATA[Don't modify the display of my collapsed categories!]]></phrase>
     <phrase title="option_toggleME_Categories_CloseClass_Off_explain" version_id="9" version_string="1.8"><![CDATA[If you select this option, the display of your categories once collapsed will remain the same, which means the ToggleME Style Properties Options for categories will have no effect.]]></phrase>
+    <phrase title="option_toggleME_debug_displayCategoryId" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[[DEBUG] Display categories identifiants]]></phrase>
+    <phrase title="option_toggleME_debug_displayCategoryId_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Only admins will see this information. Only "Manual node" ids should be useful.]]></phrase>
+    <phrase title="option_toggleME_debug_displayWidgetId" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[[DEBUG] Display widgets identifiants]]></phrase>
+    <phrase title="option_toggleME_debug_displayWidgetId_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Only admins will see this information.]]></phrase>
     <phrase title="option_toggleME_DefaultOff_ExtraCat" version_id="7" version_string="1.6.2"><![CDATA[Default Closed EXTRA Categories]]></phrase>
-    <phrase title="option_toggleME_DefaultOff_ExtraCat_explain" version_id="7" version_string="1.6.2"><![CDATA[You can select here to automatically close some Extra Categories, for example the Shoutbox. To perform this operation, you have to find their IDs. The easiest way to do it is to look inside your page html code and find the tag of their Toggle Button. <br /><br />The IDs of these EXTRA categories always use the same following pattern:  <b>_crc_XX-X </b>(X being some numbers)<br /><br />
-If you want to add several Extra Categories IDs, <b> you HAVE to separate each ID with a coma</b>. Example: _crc_36-1,_crc_36-2]]></phrase>
+    <phrase title="option_toggleME_DefaultOff_ExtraCat_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[You can select here to automatically close some Extra Categories, which are the ones added by addons. To perform this operation, you have to find their IDs. Each id must be separated <b> with a coma</b>.<br /><br />
+To find the 'category identifiant', you can enable the debug option called "display categories identifiants".]]></phrase>
     <phrase title="option_toggleME_DefaultOff_XenCat" version_id="7" version_string="1.6.2"><![CDATA[Default Closed XenForo Categories]]></phrase>
     <phrase title="option_toggleME_DefaultOff_XenCat_explain" version_id="7" version_string="1.6.2"><![CDATA[]]></phrase>
     <phrase title="option_toggleme_effect_duration" version_id="12" version_string="2.01"><![CDATA[Easing duration]]></phrase>
@@ -361,25 +377,13 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF" version_id="9" version_string="1.8"><![CDATA[Hide "Wrapped Sub-forums" by default]]></phrase>
     <phrase title="option_toggleME_Usergroups_Wrapped_Nodes_OFF_explain" version_id="9" version_string="1.8"><![CDATA[If you check that options, these sub-forums will be automatically hidden: the user will need to click on the button to display them.]]></phrase>
     <phrase title="option_toggleME_Widgets_Disabled" version_id="23" version_string="2.3.0"><![CDATA[Default Closed Widgets]]></phrase>
-    <phrase title="option_toggleME_Widgets_Disabled_explain" version_id="23" version_string="2.3.0"><![CDATA[If you want to automatically close a widget when the page is loaded (<span style="text-decoration:underline">providing the user didn't chose to open it during his session</span>), just use this option. Each 'widget name' must be separated with a coma.<br />
+    <phrase title="option_toggleME_Widgets_Disabled_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[If you want to automatically close a widget when the page is loaded (<span style="text-decoration:underline">providing the user didn't chose to open it during his session</span>), just use this option. Each 'widget identifiant' must be separated with a coma.<br />
 <br />
-To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
-<br />
-<span style="text-decoration:underline;color:orange">Information:</span> Some widgets originally don't have any main class name except "section" (ie: 'Forum Statistics' Widget), which doesn't help very much to target him. To overcome this problem, ToggleMe automatically adds them a generic class name  according to the widget position inside the sidebar. The generic class format is the following one: <b>tglblock_ + page position</b>. <br />
-<br />
-<b>So if you change the widget position and you want it to be closed by default, you will need to come back here because its class name will have changed.</b>.<br />
-<br />
-<span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
-Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>
+To find the 'widget identifiant', you can enable the debug option called "display widgets identifiants".]]></phrase>
     <phrase title="option_toggleME_Widgets_Excluded" version_id="23" version_string="2.3.0"><![CDATA[Default Exclude Widgets]]></phrase>
-    <phrase title="option_toggleME_Widgets_Excluded_explain" version_id="23" version_string="2.3.0"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget name' must be separated with a coma.<br />
+    <phrase title="option_toggleME_Widgets_Excluded_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget identifiant' must be separated with a coma.<br />
 <br />
-To find the 'widget name', you need to look inside the page code to see what is the main class for the widget. For example if my widget has the following classes: class="section visitorPanel", its main class is "visitorPanel". Tips: its css classes will always start with "section", then the second one should be the good one.<br />
-<br />
-Option default values for this option: <b>nwf_visitorpanel, nwf_loginbutton</b><br />
-<br />
-<span style="text-decoration:underline;color:orange">Information about the Widget Framework:</span> If you use the addon <a href="http://xenforo.com/community/resources/bd-widget-framework.297/" target="_blank">[bd] Widget Framework</a>, ToggleME will automatically detect it. If you want to close by default a widget or don't want to activate the Toggle function for it, put its full class name using this pattern.<br />
-Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]></phrase>
+To find the 'widget identifiant', you can enable the debug option called "display widgets identifiants".]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedDescription_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedDescription_master" version_id="5" version_string="V.1.5"><![CDATA[Category Strip Collapsed Description]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedTitle_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
@@ -400,6 +404,8 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     <phrase title="style_property_tglNodelist_forumview_inactive_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_inactive_text_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_inactive_text_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container text]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssMode_description_master" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[This option will disable the use of images.]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssMode_master" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Enable the pure css mode]]></phrase>
     <phrase title="toggleme_closed" version_id="12" version_string="2.01"><![CDATA[Closed]]></phrase>
     <phrase title="toggleMe_Collapse" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Hide forums!]]></phrase>
     <phrase title="toggleMe_Expand" global_cache="1" version_id="5" version_string="V.1.5"><![CDATA[Display forums!]]></phrase>
@@ -421,6 +427,7 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
     <property property_name="tglNodelist_forumview_inactive_text" property_type="css" definition="1" group_name="toggleME" title="Nodelist Collapse Container text" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="51" sub_group=""><![CDATA[{"background-color":"@secondaryMedium","border-color":"@secondaryLight","border-radius":"20px","border-style":"solid","border-width":"1px","color":"@textCtrlBackground","extra":"box-shadow: 0px 1px 2px rgba(0,0,0, 0.2);","font-size":"9pt","padding-bottom":"2px","padding-left":"50px","padding-right":"50px","padding-top":"2px"}]]></property>
     <property property_name="secondaryContentCollapsed" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed" description="Those values are based on default &quot;secondaryContent&quot; property (from &quot;Building Blocks&quot; menu). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="60" sub_group=""><![CDATA[{"background-color":"@secondaryLightest","background-image":"@imagePath\/xenforo\/gradients\/category-23px-light.png","background-position":"top","background-repeat":"repeat-x","border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","padding-all":"10px"}]]></property>
     <property property_name="secondaryContentCollapsedTitle" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed Title" description="Those values are based on XenForo default CSS '.secondaryContent h3' property (see in the css directly). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="61" sub_group=""><![CDATA[{"border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","color":"@secondaryLight","font-size":"12pt","margin-bottom":"5px","padding-bottom":"2px"}]]></property>
+    <property property_name="toggleMe_pureCssMode" property_type="scalar" definition="1" group_name="toggleME" title="Enable the pure css mode" description="This option will disable the use of images." css_components="" scalar_type="boolean" scalar_parameters="" display_order="10" sub_group="main_options"><![CDATA[1]]></property>
     <group group_name="toggleME" display_order="9999">
       <title>ToggleME</title>
       <description>ToggleME addon options</description>
@@ -592,12 +599,192 @@ Example for the statistics widget: <b>WidgetFramework_WidgetRenderer_Stats</b>]]
 	height: 16px;
 	cursor: pointer;
 }]]></template>
-    <template title="toggleme_page_container_js" version_id="21" version_string="2.2.5"><![CDATA[<xen:require css="toggleme_auto.css" />
-<xen:require css="toggleme_manual.css" />
+    <template title="toggleme_page_container_js" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[<xen:require css="toggleme_auto.css" />
+
+<xen:if is="!{xen:property toggleMe_pureCssMode} OR ({$visitor.getBrowser.isIE} AND {$visitor.getBrowser.IEis} < 8)">
+	<xen:require css="toggleme_manual.css" />
+<xen:else />
+	<xen:require css="toggleme_purecss.css" />	
+</xen:if>
+
 <xen:require js="js/sedo/toggleme/toggleME.js" />
+
 ]]></template>
+    <template title="toggleme_purecss.css" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[<xen:comment>Configure here button for categories with & without child</xen:comment>
+.toggle_me.tglWchild.pcss,
+.toggle_me.tglNOchild.pcss
+{  
+	display: inline;
+	float: right;
+	width: 11px;
+	height: 11px;
+	font-size: 11px;	
+	margin-right: 3px;
+	border: 1px solid #b2b2b2;
+	color: #b2b2b2;
+	opacity: 0.65;
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	-moz-box-shadow:1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	cursor: pointer;
+}	
+
+.toggle_me.tglNOchild.pcss
+{  
+	margin-top: -4px;
+}	
+
+.toggle_me.tglWchild.pcss > span:after,
+.toggle_me.tglNOchild.pcss > span:after
+{
+	display: block;
+	text-align: center;
+	position: relative;
+	line-height:11px;
+	vertical-align:middle;
+}
+
+.toggle_me.tglWchild.pcss.active > span:after,
+.toggle_me.tglNOchild.pcss.active > span:after
+{
+	content:"–";
+	top: -1px;
+}
+
+.toggle_me.tglWchild.pcss.inactive > span:after,
+.toggle_me.tglNOchild.pcss.inactive > span:after
+{
+	content:"+";
+}
+
+<xen:comment>Configure here buttons inside postbit</xen:comment>
+.tglPosbit.pcss{
+	float: right;
+	display: inline;
+	width: 11px;
+	height: 11px;
+	font-size: 11px;	
+	border: 1px solid #b2b2b2;
+	color: #b2b2b2;
+	opacity: 0.65;
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	-moz-box-shadow:1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	cursor: pointer;	
+}
+
+.tglPosbit.pcss > span:after
+{  
+	display: block;
+	text-align: center;
+	position: relative;
+	line-height:11px;
+	vertical-align:middle;
+}
+
+.tglPosbit.pcss.inactive > span:after
+{  
+	content:"+";
+}
+.tglPosbit.pcss.active > span:after
+{
+	content:"–";
+	top: -1px;
+}
+
+.tglPosbit.pos_abvextra
+{
+	position: relative;
+	bottom: 4px;
+	right: -2px;
+}
+
+.extraUserInfo.toggleHidden
+{
+	display:none;
+}
+
+<xen:comment>Configure here buttons for sidebar blocks</xen:comment>
+.tglSidebar.pcss
+{  
+	display:block;
+	float: right;
+	width: 11px;
+	height: 11px;
+	font-size: 11px;	
+	border: 1px solid #b2b2b2;
+	color: #b2b2b2;
+	opacity: 0.65;
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	-moz-box-shadow:1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	box-shadow: 1px 1px 2px -1px rgba(55, 50, 50, 0.5);
+	cursor: pointer;	
+}
+
+.tglSidebar.pcss > span:after
+{
+	display: block;
+	text-align: center;
+	position: relative;
+	line-height:11px;
+	vertical-align:middle;
+}
+
+.tglSidebar.inactive.pcss > span:after
+{  
+	content:"+";
+}
+
+.tglSidebar.active.pcss > span:after
+{  
+	content:"–";
+	top: -1px;
+}]]></template>
+    <template title="toggleme_subforums_trigger" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[<xen:require css="toggleme_subforums_trigger.css" />
+
+<xen:if is="{$xenOptions.toggleME_selected_areas.node_subforums} AND {xen:helper ismemberof, $visitor, $xenOptions.toggleME_Usergroups_Wrapped_Nodes}">
+	<div id="tglnode_{$parentId}" class="tglNodelist_forumview{xen:if '{$xenOptions.toggleME_Usergroups_Wrapped_Nodes_OFF}', ' tglNodeOff'}">
+		<span class="toggleME_Expand">{xen:phrase toggleMe_Expand}</span> 	
+		<span class="toggleME_Collapse">{xen:phrase toggleMe_Collapse}</span>
+	</div>
+</xen:if>]]></template>
+    <template title="toggleme_subforums_trigger.css" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[.tglNodelist_forumview > span{
+	display:none;
+}]]></template>
   </templates>
   <public_template_modifications>
+    <modification template="page_container_js_body" modification_key="sedo_tglme_config" description="Config of ToggleME" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(\s+)(_ignoredUsers:)#i]]></find>
+      <replace><![CDATA[$1toogleMeConfig:{ effect: "{$xenOptions.toggleme_effect_easing}", duration: {$xenOptions.toggleme_effect_duration}, postbit_state: {$toggleME.state} },$1$2]]></replace>
+    </modification>
+    <modification template="node_list" modification_key="sedo_tglme_subforums" description="Toggle Subforums" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<ol[^>]+?class="[^"]*?nodeList[^"]*?"[^>]*?>#]]></find>
+      <replace><![CDATA[$0
+	<xen:if is="{$nodeList.parentNodeId}">
+		<xen:include template="toggleme_subforums_trigger">
+			<xen:set var="$parentId">{$nodeList.parentNodeId}</xen:set>
+		</xen:include>
+	</xen:if>]]></replace>
+    </modification>
+    <modification template="PAGE_CONTAINER" modification_key="sedo_tglme_templates" description="Templates of ToggleME" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[</head>]]></find>
+      <replace><![CDATA[<xen:if is="{$toggleME.perms.quickCheck}">
+	<xen:include template="toggleme_page_container_js" />
+</xen:if>
+$0]]></replace>
+    </modification>
     <modification template="node_category_level_1" modification_key="toggleme_hasnew_category" description="Add css class to a category is it has new message" execution_order="10" enabled="1" action="str_replace">
       <find><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip">]]></find>
       <replace><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip {xen:if $category.hasNew, 'hasNew'}">]]></replace>
