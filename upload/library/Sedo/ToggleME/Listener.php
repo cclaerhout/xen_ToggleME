@@ -25,6 +25,7 @@ class Sedo_ToggleME_Listener
 		switch ($hookName) 
 		{
 			case 'forum_list_nodes':
+		
 				//For categories using by addons or styles
 				$style_session = $template->getParam('visitorStyle');
 				$viewName = $template->getParam('viewName');				
@@ -86,40 +87,48 @@ class Sedo_ToggleME_Listener
 				}
 
 				/*Dom management*/
-				$dom = new Zend_Dom_Query("<wip>{$contents}</wip>");
+				$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
+				$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
 
-				$listNodes = $dom->query('wip > ol > li');
-				$doc = $listNodes->getDocument();
+				$categoryStripNodes = $dom->query('.categoryStrip');
+				$doc = $categoryStripNodes->getDocument();
 				$doc->removeChild($doc->firstChild);
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
 
-				foreach($listNodes as $listNode)
+				foreach($categoryStripNodes as $categoryStripNode)
 				{
-					/*Try to cach the categoryStrip element*/
-					$innerNodes = $listNode->getElementsByTagName('*');
-					$categoryStripNode = null;
+					/*Try to cach the root node*/
+					$rootNode = null;
+					$maxDepth = 20;
 
-					foreach($innerNodes as $divNode)
+					for($parentNode = $categoryStripNode->parentNode; ; $parentNode = $parentNode->parentNode)
 					{
-						$divNodeClass = $divNode->getAttribute('class');
-						if(strpos($divNodeClass, 'categoryStrip') !== false)
+						$maxDepth--;
+						if(in_array($parentNode->parentNode->tagName, array('wip', 'ol')))
 						{
-							$categoryStripNode = $divNode;
+							$rootNode = $parentNode;
+							break;
+						}
+						
+						if($maxDepth == 0)
+						{
 							break;
 						}
 					}
-					
-					if($categoryStripNode == null)
+				
+					if($rootNode == null)
 					{
 						continue;
 					}
 					
 					/*Settings*/
-					$nodeClass = $listNode->getAttribute('class');
-					$hasChildren = (strpos($nodeClass, 'groupNoChildren') === false);
-					list($nodeId, $isXenId) = self::_getNodeId($nodeClass, $viewName);
+					$rootId = $rootNode->getAttribute('id');
+					$rootClass = $rootNode->getAttribute('class');
+
+					$hasChildren = (strpos($rootClass, 'groupNoChildren') === false);
+					list($nodeId, $isXenId) = self::_getNodeId($rootClass, $rootId, $viewName);
 					$idName = self::_uniqNodeId($nodeId);
-					
+
 					$classTarget = ($hasChildren) ? 'toggle_me tglWchild' : 'toggle_me tglNOchild';
 					
 					if($pureCssMode)
@@ -170,13 +179,13 @@ class Sedo_ToggleME_Listener
 					}
 
 					/*New node creation*/
-					$newNode =  $listNode->ownerDocument->createElement('div');
+					$newNode =  $categoryStripNode->ownerDocument->createElement('div');
 					$newNode->setAttribute('id', $idName);
 					$newNode->setAttribute('class', $classTarget);					
 
 					if($pureCssMode)
 					{
-						$pureCssSpanNode = $listNode->ownerDocument->createElement('span');
+						$pureCssSpanNode = $categoryStripNode->ownerDocument->createElement('span');
 						$newNode->appendChild($pureCssSpanNode); 
 					}
 
@@ -195,15 +204,15 @@ class Sedo_ToggleME_Listener
 						$textInfo = "ID: {$idName} ";
 						$textInfo .= ($isXenId) ? "(Xen Node)" : "(Manual node)";
 					
-						$infoNode =  $listNode->ownerDocument->createElement('div');
-						$infoNodeText = $listNode->ownerDocument->createTextNode($textInfo);
+						$infoNode =  $categoryStripNode->ownerDocument->createElement('div');
+						$infoNodeText = $categoryStripNode->ownerDocument->createTextNode($textInfo);
 						$infoNode->appendChild($infoNodeText); 
 						$infoNode->setAttribute('class', "debug_tglm_info");
-						$listNode->insertBefore($infoNode, $listNode->firstChild);
+						$categoryStripNode->insertBefore($infoNode, $categoryStripNode->firstChild);
 					}
 				}
 
-				$html = $listNodes->getDocument()->saveHTML();
+				$html = $categoryStripNodes->getDocument()->saveHTML();
 				
 				/*Get rid of the body tag: too difficult to do it with the dom...*/
 				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
@@ -262,7 +271,8 @@ class Sedo_ToggleME_Listener
 				$pureCssMode = self::isPureCssMode();
 				
 				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);
-				$dom = new Zend_Dom_Query("<wip>{$contents}</wip>");
+				$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
+				$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
 
 				$widgetNodes = $dom->query('wip > div');
 				$doc = $widgetNodes->getDocument();
@@ -494,11 +504,16 @@ class Sedo_ToggleME_Listener
 		return $widgetId;
 	}
 
-	protected static function _getNodeId($nodeClass, $viewName = null)
+	protected static function _getNodeId($nodeClass, $rootId, $viewName = null)
 	{
 		if(preg_match('#node_(?P<id>\d{1,9})#', $nodeClass, $match))
 		{
 			return array($match['id'], true);
+		}
+		
+		if($rootId)
+		{
+			return  array($rootId, false);
 		}
 
 		$fallbackName = str_replace('XenForo_ViewPublic_', '', $viewName);
