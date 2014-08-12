@@ -404,6 +404,12 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <phrase title="style_property_tglNodelist_forumview_inactive_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_inactive_text_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_inactive_text_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Collapse Container text]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModeCatColor_description_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModeCatColor_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[Pure css - categories button main color]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModePostbitColor_description_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModePostbitColor_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[Pure css - postbits button main color]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModeWidgetColor_description_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_pureCssModeWidgetColor_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[Pure css - widgets button main color]]></phrase>
     <phrase title="style_property_toggleMe_pureCssMode_description_master" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[This option will disable the use of images.]]></phrase>
     <phrase title="style_property_toggleMe_pureCssMode_master" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Enable the pure css mode]]></phrase>
     <phrase title="toggleme_closed" version_id="12" version_string="2.01"><![CDATA[Closed]]></phrase>
@@ -427,7 +433,10 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <property property_name="tglNodelist_forumview_inactive_text" property_type="css" definition="1" group_name="toggleME" title="Nodelist Collapse Container text" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="51" sub_group=""><![CDATA[{"background-color":"@secondaryMedium","border-color":"@secondaryLight","border-radius":"20px","border-style":"solid","border-width":"1px","color":"@textCtrlBackground","extra":"box-shadow: 0px 1px 2px rgba(0,0,0, 0.2);","font-size":"9pt","padding-bottom":"2px","padding-left":"50px","padding-right":"50px","padding-top":"2px"}]]></property>
     <property property_name="secondaryContentCollapsed" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed" description="Those values are based on default &quot;secondaryContent&quot; property (from &quot;Building Blocks&quot; menu). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="60" sub_group=""><![CDATA[{"background-color":"@secondaryLightest","background-image":"@imagePath\/xenforo\/gradients\/category-23px-light.png","background-position":"top","background-repeat":"repeat-x","border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","padding-all":"10px"}]]></property>
     <property property_name="secondaryContentCollapsedTitle" property_type="css" definition="1" group_name="toggleME" title="Widget Collapsed Title" description="Those values are based on XenForo default CSS '.secondaryContent h3' property (see in the css directly). You might need to update them according to your own style." css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="61" sub_group=""><![CDATA[{"border-bottom-color":"@secondaryLighter","border-bottom-style":"solid","border-bottom-width":"1px","color":"@secondaryLight","font-size":"12pt","margin-bottom":"5px","padding-bottom":"2px"}]]></property>
-    <property property_name="toggleMe_pureCssMode" property_type="scalar" definition="1" group_name="toggleME" title="Enable the pure css mode" description="This option will disable the use of images." css_components="" scalar_type="boolean" scalar_parameters="" display_order="10" sub_group="main_options"><![CDATA[1]]></property>
+    <property property_name="toggleMe_pureCssMode" property_type="scalar" definition="1" group_name="toggleME" title="Enable the pure css mode" description="This option will disable the use of images." css_components="" scalar_type="boolean" scalar_parameters="" display_order="10" sub_group="purecss"><![CDATA[0]]></property>
+    <property property_name="toggleMe_pureCssModeCatColor" property_type="scalar" definition="1" group_name="toggleME" title="Pure css - categories button main color" description="" css_components="" scalar_type="color" scalar_parameters="" display_order="20" sub_group="purecss"><![CDATA[#b2b2b2]]></property>
+    <property property_name="toggleMe_pureCssModeWidgetColor" property_type="scalar" definition="1" group_name="toggleME" title="Pure css - widgets button main color" description="" css_components="" scalar_type="color" scalar_parameters="" display_order="30" sub_group="purecss"><![CDATA[#b2b2b2]]></property>
+    <property property_name="toggleMe_pureCssModePostbitColor" property_type="scalar" definition="1" group_name="toggleME" title="Pure css - postbits button main color" description="" css_components="" scalar_type="color" scalar_parameters="" display_order="40" sub_group="purecss"><![CDATA[#b2b2b2]]></property>
     <group group_name="toggleME" display_order="9999">
       <title>ToggleME</title>
       <description>ToggleME addon options</description>
@@ -610,7 +619,7 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 <xen:require js="js/sedo/toggleme/toggleME.js" />
 
 ]]></template>
-    <template title="toggleme_purecss.css" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[<xen:comment>Configure here button for categories with & without child</xen:comment>
+    <template title="toggleme_purecss.css" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[<xen:comment>Configure here button for categories with & without child</xen:comment>
 .toggle_me.tglWchild.pcss,
 .toggle_me.tglNOchild.pcss
 {  
@@ -620,8 +629,8 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 	height: 11px;
 	font-size: 11px;	
 	margin-right: 3px;
-	border: 1px solid #b2b2b2;
-	color: #b2b2b2;
+	border: 1px solid {xen:property toggleMe_pureCssModeCatColor};
+	color: {xen:property toggleMe_pureCssModeCatColor};
 	opacity: 0.65;
 	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 	-webkit-border-radius: 2px;
@@ -668,8 +677,8 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 	width: 11px;
 	height: 11px;
 	font-size: 11px;	
-	border: 1px solid #b2b2b2;
-	color: #b2b2b2;
+	border: 1px solid {xen:property toggleMe_pureCssModePostbitColor};
+	color: {xen:property toggleMe_pureCssModePostbitColor};
 	opacity: 0.65;
 	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 	-webkit-border-radius: 2px;
@@ -720,8 +729,8 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 	width: 11px;
 	height: 11px;
 	font-size: 11px;	
-	border: 1px solid #b2b2b2;
-	color: #b2b2b2;
+	border: 1px solid {xen:property toggleMe_pureCssModeWidgetColor};
+	color: {xen:property toggleMe_pureCssModeWidgetColor};
 	opacity: 0.65;
 	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 	-webkit-border-radius: 2px;
