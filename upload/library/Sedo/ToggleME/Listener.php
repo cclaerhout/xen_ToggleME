@@ -87,13 +87,26 @@ class Sedo_ToggleME_Listener
 				}
 
 				/*Dom management*/
-				$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
-				$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
+				$doc = new DOMDocument();
+				libxml_use_internal_errors(true);
+				$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
+				libxml_clear_errors();
+				$doc->encoding = 'utf-8';
 
-				$categoryStripNodes = $dom->query('.categoryStrip');
-				$doc = $categoryStripNodes->getDocument();
-				$doc->removeChild($doc->firstChild);
-				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
+				$finder = new DomXPath($doc);
+				$categoryStripNodes = $finder->query("//*[contains(@class, 'categoryStrip')]");
+			
+				/***
+					//Zend method+fix
+					$readyContent = mb_convert_encoding($contents, 'HTML-ENTITIES', 'UTF-8');
+					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>", 'utf-8');
+					$categoryStripNodes = $dom->query('.categoryStrip');
+					$doc = $categoryStripNodes->getDocument();
+				 ***/
+
+				$doc->removeChild($doc->firstChild); //remove html tag
+				$doc->removeChild($doc->firstChild); //remove xml fix
+				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
 
 				foreach($categoryStripNodes as $categoryStripNode)
 				{
@@ -212,7 +225,7 @@ class Sedo_ToggleME_Listener
 					}
 				}
 
-				$html = $categoryStripNodes->getDocument()->saveHTML();
+				$html = $doc->saveHTML($dom->documentElement);
 				
 				/*Get rid of the body tag: too difficult to do it with the dom...*/
 				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
@@ -269,15 +282,29 @@ class Sedo_ToggleME_Listener
 				$excludedWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Excluded));
 				$disabledWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Disabled));
 				$pureCssMode = self::isPureCssMode();
-				
-				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);
-				$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
-				$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
+				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);				
 
-				$widgetNodes = $dom->query('wip > div');
-				$doc = $widgetNodes->getDocument();
-				$doc->removeChild($doc->firstChild);
-				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
+				//Dom management
+				$doc = new DOMDocument();
+				libxml_use_internal_errors(true);
+				$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
+				libxml_clear_errors();
+				$doc->encoding = 'utf-8';
+
+				$finder = new DomXPath($doc);
+				$widgetNodes = $finder->query("//wip/div");
+
+				/***
+					//Zend method+fix
+					$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
+					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
+					$widgetNodes = $dom->query('wip > div');
+					$doc = $widgetNodes->getDocument();
+				***/
+				
+				$doc->removeChild($doc->firstChild); //remove html tag
+				$doc->removeChild($doc->firstChild); //remove xml fix
+				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
 			
 				foreach($widgetNodes as $widgetNode)
 				{
@@ -416,7 +443,7 @@ class Sedo_ToggleME_Listener
 					}
 				}
 				
-				$html = $widgetNodes->getDocument()->saveHTML();
+				$html = $doc->saveHTML();
 				
 				/*Get rid of the body tag: too difficult to do it with the dom...*/
 				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
@@ -680,7 +707,7 @@ class Sedo_ToggleME_Listener
 	}
 	
 
-	protected static $_isPureCssMode;	
+	protected static $_isPureCssMode;
 	public static function isPureCssMode()
 	{
 		if(!self::$_isPureCssMode)
