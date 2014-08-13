@@ -1,7 +1,9 @@
 <?php
-// Last modified: version 3.0.0 Beta 1
+// Last modified: version 3.0.0 Beta 2
 class Sedo_ToggleME_Listener
 {
+	protected static $_zendMethod = false; // for test purpose - do not change this.
+	
 	public static function template_create(&$templateName, array &$params, XenForo_Template_Abstract $template)
 	{
 		switch($templateName)
@@ -87,25 +89,36 @@ class Sedo_ToggleME_Listener
 				}
 
 				/*Dom management*/
-				$doc = new DOMDocument();
-				libxml_use_internal_errors(true);
-				$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
-				libxml_clear_errors();
-				$doc->encoding = 'utf-8';
+				$zendMethod = self::$_zendMethod;
+				
+				if(!$zendMethod)
+				{
+					$doc = new DOMDocument();
+					libxml_use_internal_errors(true);
+					$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
+					self::_fixNpTags($doc);					
+					libxml_clear_errors();
+					$doc->encoding = 'utf-8';
 
-				$finder = new DomXPath($doc);
-				$categoryStripNodes = $finder->query("//*[contains(@class, 'categoryStrip')]");
-			
-				/***
-					//Zend method+fix
+					$finder = new DomXPath($doc);
+					$categoryStripNodes = $finder->query("//*[contains(@class, 'categoryStrip')]");
+				}
+				else
+				{
+
 					$readyContent = mb_convert_encoding($contents, 'HTML-ENTITIES', 'UTF-8');
 					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>", 'utf-8');
 					$categoryStripNodes = $dom->query('.categoryStrip');
 					$doc = $categoryStripNodes->getDocument();
-				 ***/
-
+				}
+				
 				$doc->removeChild($doc->firstChild); //remove html tag
-				$doc->removeChild($doc->firstChild); //remove xml fix
+
+				if(!$zendMethod)
+				{
+					$doc->removeChild($doc->firstChild); //remove xml fix
+				}
+				
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
 
 				foreach($categoryStripNodes as $categoryStripNode)
@@ -285,25 +298,35 @@ class Sedo_ToggleME_Listener
 				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);				
 
 				//Dom management
-				$doc = new DOMDocument();
-				libxml_use_internal_errors(true);
-				$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
-				libxml_clear_errors();
-				$doc->encoding = 'utf-8';
+				$zendMethod = self::$_zendMethod;
+				
+				if(!$zendMethod)
+				{
+					$doc = new DOMDocument();
+					libxml_use_internal_errors(true);
+					$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
+					self::_fixNpTags($doc);
+					libxml_clear_errors();
+					$doc->encoding = 'utf-8';
 
-				$finder = new DomXPath($doc);
-				$widgetNodes = $finder->query("//wip/div");
-
-				/***
-					//Zend method+fix
+					$finder = new DomXPath($doc);
+					$widgetNodes = $finder->query("//wip/div");
+				}
+				else
+				{
 					$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
 					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
 					$widgetNodes = $dom->query('wip > div');
-					$doc = $widgetNodes->getDocument();
-				***/
+					$doc = $widgetNodes->getDocument();			
+				}
 				
 				$doc->removeChild($doc->firstChild); //remove html tag
-				$doc->removeChild($doc->firstChild); //remove xml fix
+
+				if(!$zendMethod)
+				{
+					$doc->removeChild($doc->firstChild); //remove xml fix
+				}
+				
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
 			
 				foreach($widgetNodes as $widgetNode)
@@ -444,11 +467,11 @@ class Sedo_ToggleME_Listener
 				}
 				
 				$html = $doc->saveHTML();
-				
+
 				/*Get rid of the body tag: too difficult to do it with the dom...*/
 				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
 				//$html = substr($html, 5, -7);
-				
+
 				$contents = $html;
 
 				/***
@@ -717,6 +740,78 @@ class Sedo_ToggleME_Listener
 
 		return self::$_isPureCssMode;
 	}
+	
+	protected static function _fixNpTags(&$doc)
+	{
+		$tagStack = array();
+		$fbTag = 'fb:like'
+		$fbTagFixed = false;
+		
+		/* Automatic method*/
+		foreach (libxml_get_errors() as $error)
+		{
+			if(!$error->message)
+			{
+				continue;
+			}
+
+			$message = $error->message;
+
+			if(strpos($message, 'Tag') === 0 && strpos($message, 'invalid') === (strlen($message) - 8))
+			{
+				$tag = substr($message, 4, -9);
+
+				if(strpos($tag, ':') === false || isset($tagStack[$tag]))
+				{
+					continue;
+				}
+
+				$tagStack[$tag] = true;
+				$tagInfo = explode(':', $tag);
+				$tagSuffix = $tagInfo[1];
+
+				$targetNodes = $doc->getElementsByTagName($tagSuffix);
+
+				if($targetNodes->length == 0)
+				{
+					continue;
+				}
+
+				foreach($targetNodes as $node)
+				{
+					$patchedNode = $doc->createElement($tag, $node->nodeValue);
+					$node->parentNode->replaceChild($patchedNode, $node);
+				}
+				
+				if($tag == $fbTag)
+				{
+					$fbTagFixed = true;
+				}				
+			}
+			else
+			{
+				continue;
+			}
+		}
+		
+		/* Manual method*/
+		if(!$fbTagFixed)
+		{
+      			$targetNodes = $doc->getElementsByTagName('like');
+
+      			if($targetNodes->length == 0)
+      			{
+      				continue;
+      			}
+
+      			foreach($targetNodes as $node)
+      			{
+      				$patchedNode = $doc->createElement($fbTag, $node->nodeValue);
+      				$node->parentNode->replaceChild($patchedNode, $node);
+      			}			
+		}
+	}
+	
 }
 /*
 	DEV TOOLS:
