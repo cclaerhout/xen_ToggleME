@@ -744,7 +744,7 @@ class Sedo_ToggleME_Listener
 	protected static function _fixNpTags(&$doc)
 	{
 		$tagStack = array();
-		$fbTag = 'fb:like'
+		$fbTag = 'fb:like';
 		$fbTagFixed = false;
 		
 		/* Automatic method*/
@@ -801,7 +801,7 @@ class Sedo_ToggleME_Listener
 
       			if($targetNodes->length == 0)
       			{
-      				continue;
+      				return;
       			}
 
       			foreach($targetNodes as $node)
