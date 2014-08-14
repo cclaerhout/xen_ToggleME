@@ -1,9 +1,7 @@
 <?php
-// Last modified: version 3.0.0 Beta 2
+// Last modified: version 3.0.0 Beta 3
 class Sedo_ToggleME_Listener
 {
-	protected static $_zendMethod = false; // for test purpose - do not change this.
-	
 	public static function template_create(&$templateName, array &$params, XenForo_Template_Abstract $template)
 	{
 		switch($templateName)
@@ -89,14 +87,15 @@ class Sedo_ToggleME_Listener
 				}
 
 				/*Dom management*/
-				$zendMethod = self::$_zendMethod;
+				$zendMethod = self::$zendMethod;
 				
 				if(!$zendMethod)
 				{
 					$doc = new DOMDocument();
 					libxml_use_internal_errors(true);
-					$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
-					self::_fixNpTags($doc);					
+					$readyContent = self::beforeLoadHtml($contents);
+					$doc->loadHTML('<?xml encoding="utf-8"?>' . $readyContent);
+					self::fixNpTagsInDom($doc);					
 					libxml_clear_errors();
 					$doc->encoding = 'utf-8';
 
@@ -239,11 +238,7 @@ class Sedo_ToggleME_Listener
 				}
 
 				$html = $doc->saveHTML($dom->documentElement);
-				
-				/*Get rid of the body tag: too difficult to do it with the dom...*/
-				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
-				//$html = substr($html, 5, -7);
-
+				$html = self::afterSaveHtml($html);
 				$contents = $html;
 			break;
 				
@@ -298,14 +293,15 @@ class Sedo_ToggleME_Listener
 				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);				
 
 				//Dom management
-				$zendMethod = self::$_zendMethod;
+				$zendMethod = self::$zendMethod;
 				
 				if(!$zendMethod)
 				{
 					$doc = new DOMDocument();
 					libxml_use_internal_errors(true);
-					$doc->loadHTML('<?xml encoding="utf-8"?>' . "<wip>{$contents}</wip>");
-					self::_fixNpTags($doc);
+					$readyContent = self::beforeLoadHtml($contents);
+					$doc->loadHTML('<?xml encoding="utf-8"?>' . $readyContent);
+					self::fixNpTagsInDom($doc);
 					libxml_clear_errors();
 					$doc->encoding = 'utf-8';
 
@@ -467,11 +463,7 @@ class Sedo_ToggleME_Listener
 				}
 				
 				$html = $doc->saveHTML();
-
-				/*Get rid of the body tag: too difficult to do it with the dom...*/
-				$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
-				//$html = substr($html, 5, -7);
-
+				$html = self::afterSaveHtml($html);				
 				$contents = $html;
 
 				/***
@@ -481,6 +473,31 @@ class Sedo_ToggleME_Listener
 			break;
 		}			
 	}
+
+	public static function beforeLoadHtml($html)
+	{
+		$html = "<wip>{$html}</<wip>";
+		
+		if(self::$zendMethod || self::$purePhpMethodNpRegexFix)
+		{
+			$html = self::fixNpTagsRegex($html);
+		}
+		
+		return $html;
+	}
+
+	public static function afterSaveHtml($html)
+	{
+		if(self::$zendMethod || self::$purePhpMethodNpRegexFix)
+		{
+			$html = self::fixNpTagsRegex($html, true);
+		}
+
+		/*Get rid of the body tag: too difficult to do it with the dom...*/
+		$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
+		//$html = substr($html, 5, -7);	
+		return $html;
+	}	
 
 	public static function isWfmrWidget($id, $class, $isChild = false)
 	{
@@ -669,7 +686,6 @@ class Sedo_ToggleME_Listener
 		return $perms;
 	}
 	
-
 	protected static $_postbitForcedDisplay;
 	public static function forcePostbitExtraInfoDisplay($perms = false)
 	{
@@ -699,9 +715,7 @@ class Sedo_ToggleME_Listener
 		return $postbitForcedDisplay;
 	}
 	
-
 	protected static $_clientPreferedLanguage = 'init';
-
 	public static function getClientPreferedLanguage()
 	{
 		if(self::$_clientPreferedLanguage == 'init')
@@ -729,7 +743,6 @@ class Sedo_ToggleME_Listener
 		return self::$_isAdmin;
 	}
 	
-
 	protected static $_isPureCssMode;
 	public static function isPureCssMode()
 	{
@@ -740,9 +753,30 @@ class Sedo_ToggleME_Listener
 
 		return self::$_isPureCssMode;
 	}
-	
-	protected static function _fixNpTags(&$doc)
+
+	/***
+	 *	This function will fix the html tags with namespaces in them using some regex
+	 ***/
+	public static function fixNpTagsRegex($html, $revertMode = false)
 	{
+		if(!$revertMode)
+		{
+			return preg_replace('#<(/?)(\w+):(\w+)( [^>]+)?>#i', '<$1$2-npfix-$3$4>', $html);
+		}
+		
+		return preg_replace('#<(/?)(\w+)-npfix-(\w+)( [^>]+)?>#i', '<$1$2:$3$4>', $html);
+	}
+	
+	/***
+	 *	This function will fix the html tags with namespaces in them using the php dom
+	 ***/
+	public static function fixNpTagsInDom(&$doc)
+	{
+		if(self::$purePhpMethodNpRegexFix)
+		{
+			return;
+		}
+
 		$tagStack = array();
 		$fbTag = 'fb:like';
 		$fbTagFixed = false;
@@ -767,20 +801,14 @@ class Sedo_ToggleME_Listener
 				}
 
 				$tagStack[$tag] = true;
-				$tagInfo = explode(':', $tag);
-				$tagSuffix = $tagInfo[1];
 
-				$targetNodes = $doc->getElementsByTagName($tagSuffix);
+				$tagInfo = array();
+				$npTag = explode(':', $tag);
+				array_push($tagInfo, $tag, $npTag[0], $npTag[1]);
 
-				if($targetNodes->length == 0)
+				if(self::_cloneTags($doc, $tagInfo) === null)
 				{
 					continue;
-				}
-
-				foreach($targetNodes as $node)
-				{
-					$patchedNode = $doc->createElement($tag, $node->nodeValue);
-					$node->parentNode->replaceChild($patchedNode, $node);
 				}
 				
 				if($tag == $fbTag)
@@ -797,21 +825,43 @@ class Sedo_ToggleME_Listener
 		/* Manual method*/
 		if(!$fbTagFixed)
 		{
-      			$targetNodes = $doc->getElementsByTagName('like');
+			$tagInfo = array('fb:like', 'fb', 'like');
 
-      			if($targetNodes->length == 0)
-      			{
-      				return;
-      			}
-
-      			foreach($targetNodes as $node)
-      			{
-      				$patchedNode = $doc->createElement($fbTag, $node->nodeValue);
-      				$node->parentNode->replaceChild($patchedNode, $node);
-      			}			
+			if(self::_cloneTags($doc, $tagInfo) === null)
+			{
+				return;
+			}			
 		}
 	}
-	
+
+	protected static function _cloneTags(&$doc, $tagInfo)
+	{
+		$targetNodes = $doc->getElementsByTagName($tagInfo[2]);
+
+		if($targetNodes->length == 0)
+		{
+			return null;
+		}
+
+		foreach($targetNodes as $node)
+		{
+			$patchedNode = $doc->createElement($tagInfo[0], $node->nodeValue);
+
+			if($node->hasAttributes())
+			{
+				foreach($node->attributes as $attribute)
+				{
+					$patchedNode->setAttribute($attribute->nodeName,$attribute->value);						
+				}
+			}
+
+			$node->parentNode->replaceChild($patchedNode, $node);
+		}
+	}
+
+	/* For test purpose - do not change this */
+	private static $zendMethod = false;
+	private static $purePhpMethodNpRegexFix = false;	
 }
 /*
 	DEV TOOLS:
