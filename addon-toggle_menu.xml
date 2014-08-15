@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0 BETA 3" version_id="27" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0 BETA 3" version_id="28" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -147,6 +147,12 @@
       <sub_options>*</sub_options>
       <relation group_id="toggleME" display_order="200"/>
     </option>
+    <option option_id="toggleME_Usergroups_Polls" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="toggleME" display_order="600"/>
+    </option>
     <option option_id="toggleME_Usergroups_Postbit" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>Sedo_ToggleME_Option_Factory::render_usergroups</edit_format_params>
@@ -248,14 +254,16 @@ opened={xen:phrase toggleme_opened}</edit_format_params>
     </option>
     <option option_id="toggleME_selected_areas" edit_format="checkbox" data_type="array" can_backup="1">
       <default_value>a:2:{s:15:"node_categories";s:1:"1";s:13:"postbit_extra";b:0;}</default_value>
-      <edit_format_params>node_categories = {xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
-postbit_extra = {xen:phrase option_toggleME_selected_areas_checkbox_postbit_extra}
-node_subforums = {xen:phrase option_toggleME_selected_areas_checkbox_node_subforums}
-widgets =  {xen:phrase option_toggleME_selected_areas_checkbox_widgets}</edit_format_params>
+      <edit_format_params>node_categories={xen:phrase option_toggleME_selected_areas_checkbox_node_categories}
+postbit_extra={xen:phrase option_toggleME_selected_areas_checkbox_postbit_extra}
+node_subforums={xen:phrase option_toggleME_selected_areas_checkbox_node_subforums}
+widgets= {xen:phrase option_toggleME_selected_areas_checkbox_widgets}
+polls= {xen:phrase polls}</edit_format_params>
       <sub_options>node_categories
 postbit_extra
 node_subforums
-widgets</sub_options>
+widgets
+polls</sub_options>
       <relation group_id="toggleME" display_order="110"/>
     </option>
     <option option_id="toggleME_styles" edit_format="callback" data_type="array" can_backup="1">
@@ -307,6 +315,12 @@ easeOutBounce=easeOutBounce</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="1000"/>
     </option>
+    <option option_id="toggleme_ns_node_regex" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="9900"/>
+    </option>
   </optiongroups>
   <permissions>
     <permission_groups/>
@@ -352,6 +366,8 @@ To delete a configuration, just delete its language code and save.]]></phrase>
     <phrase title="option_toggleME_lang_cat_fullcode" version_id="21" version_string="2.2.5"><![CDATA[Use full language code?]]></phrase>
     <phrase title="option_toggleME_lang_cat_fullcode_explain" version_id="21" version_string="2.2.5"><![CDATA[By default, only the first part of the language subtag will be used ('en' instead of 'en-us'). If you want to use the full language code ('en-us'), just enable this option and don't forget to modify the language codes in your configuration option below.</br>
 To get a list of available language codes, <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry" target="_blank">click here</a>.]]></phrase>
+    <phrase title="option_toggleme_ns_node_regex" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[[ADVANCED] Namespaces tag - regex detection]]></phrase>
+    <phrase title="option_toggleme_ns_node_regex_explain" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[This addon is using sometimes the php DOM Document functions to manipulate HTML code. There's an issue with invalid HTML tags like those used by Facebook (&lt;fb:like&gt;). They are treated as"namespaces" tags. By default this problem is fixed by a function using some DOM Document manipulations. If you still see a problem with these special tags, enable this option. It will use a regex workaround.]]></phrase>
     <phrase title="option_toggleME_selected_areas" version_id="3" version_string="V.1.2"><![CDATA[toggleME areas selection]]></phrase>
     <phrase title="option_toggleME_selected_areas_checkbox_node_categories" version_id="5" version_string="V.1.6"><![CDATA[Node categories in <span style="font-style:italic">forumhome</span>]]></phrase>
     <phrase title="option_toggleME_selected_areas_checkbox_node_subforums" version_id="5" version_string="V.1.6"><![CDATA[Wrapped Subforums in a forum]]></phrase>
@@ -362,6 +378,8 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_styles_explain" version_id="4" version_string="V.1.3"><![CDATA[Select for which styles the toggle function can be enabled]]></phrase>
     <phrase title="option_toggleME_Usergroups_Forumhome" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Forumhome Area] Usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Forumhome_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function <b>in forumhome</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Polls" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[[ToggleME Polls] Usergroups]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Polls_explain" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[Select which usergroups can use (and see) the  toggle function in  <b>Polls</b>. <br /><span style="text-decoration:underline">]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Postbit Area] Usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Visible Extra Information for these usergroups]]></phrase>
@@ -419,6 +437,9 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <phrase title="toggleme_langcat_code" version_id="21" version_string="2.2.5"><![CDATA[Lang. subtag]]></phrase>
     <phrase title="toggleme_langcat_title" version_id="21" version_string="2.2.5"><![CDATA[Language code]]></phrase>
     <phrase title="toggleme_opened" version_id="12" version_string="2.01"><![CDATA[Opened]]></phrase>
+    <phrase title="toggleme_poll_ellipsis" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[...]]></phrase>
+    <phrase title="toggleme_poll_hide" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[↑]]></phrase>
+    <phrase title="toggleme_poll_show" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[↓]]></phrase>
     <phrase title="toggleme_postbit_toggler_extrainfo_above" version_id="14" version_string="2.1.1"><![CDATA[Extra User Information - above (top right)]]></phrase>
     <phrase title="toggleme_postbit_toggler_userinfo_top_right" version_id="14" version_string="2.1.1"><![CDATA[Basic User Information - top right (classic)]]></phrase>
   </phrases>
@@ -619,6 +640,25 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 <xen:require js="js/sedo/toggleme/toggleME.js" />
 
 ]]></template>
+    <template title="toggleme_poll_trigger" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[<xen:if is="{$xenOptions.toggleME_selected_areas.polls} AND {xen:helper ismemberof, $visitor, $xenOptions.toggleME_Usergroups_Polls}">
+	<xen:require css="toggleme_poll_trigger.css" />
+	<div class="button tglPoll hide" 
+		data-show="{xen:phrase toggleme_poll_show}" 
+		data-hide="{xen:phrase toggleme_poll_hide}"
+		data-ellipsis="{xen:phrase toggleme_poll_ellipsis}"></div>
+</xen:if>]]></template>
+    <template title="toggleme_poll_trigger.css" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[.button.tglPoll{
+	display: inline-block;
+	font-size: 8pt;
+	font-weight: normal;
+	margin-left: 10px;
+}
+.button.tglPoll.hide{
+	display: none;
+}
+span.tglEllipsis{
+	color:{xen:property mutedTextColor};	
+}]]></template>
     <template title="toggleme_purecss.css" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[<xen:comment>Configure here button for categories with & without child</xen:comment>
 .toggle_me.tglWchild.pcss,
 .toggle_me.tglNOchild.pcss
@@ -797,6 +837,14 @@ $0]]></replace>
     <modification template="node_category_level_1" modification_key="toggleme_hasnew_category" description="Add css class to a category is it has new message" execution_order="10" enabled="1" action="str_replace">
       <find><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip">]]></find>
       <replace><![CDATA[<div class="nodeInfo categoryNodeInfo categoryStrip {xen:if $category.hasNew, 'hasNew'}">]]></replace>
+    </modification>
+    <modification template="thread_create" modification_key="toggleme_poll" description="Toggle poll data" execution_order="10" enabled="1" action="str_replace">
+      <find><![CDATA[{xen:phrase post_poll}]]></find>
+      <replace><![CDATA[$0<xen:include template="toggleme_poll_trigger" />]]></replace>
+    </modification>
+    <modification template="thread_create" modification_key="toggleme_poll_lastdl" description="Tag last poll dl" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<!-- slot: after_poll_responses -->[\s\S]+?<dl[^>]+class="[^"]+#i]]></find>
+      <replace><![CDATA[$0 pollLast]]></replace>
     </modification>
   </public_template_modifications>
   <bb_code_media_sites/>

@@ -25,23 +25,27 @@ class Sedo_ToggleME_Listener
 		switch ($hookName) 
 		{
 			case 'forum_list_nodes':
-		
 				//For categories using by addons or styles
 				$style_session = $template->getParam('visitorStyle');
-				$viewName = $template->getParam('viewName');				
 				$perms = self::getPerms($style_session);
 				$options = XenForo_Application::get('options');
-				$isAdmin = self::isAdmin();
-				$pureCssMode = self::isPureCssMode();
-			
+
 				if(empty($perms['toggle_forumhome_usr']) || !$options->toggleME_selected_areas['node_categories'])
 				{
 					break;
 				}
-				
+
 				/*Settings*/
+				$isAdmin = self::isAdmin();
+				$pureCssMode = self::isPureCssMode();
+				$viewName = $template->getParam('viewName');
 				$closed_xenCats = $options->toggleME_DefaultOff_XenCat;
 				$closed_extraCats = array_map('trim', explode(',', $options->toggleME_DefaultOff_ExtraCat));
+								
+				if($options->toggleme_ns_node_regex)
+				{
+					self::$purePhpMethodNpRegexFix = true;
+				}
 
 				/*Custom Language*/
 				$langCheck = Sedo_ToggleME_Helper_CustomLanguage::isEnabled();
@@ -279,14 +283,14 @@ class Sedo_ToggleME_Listener
 				$style_session = $template->getParam('visitorStyle');
 				$perms = self::getPerms($style_session);
 				$options = XenForo_Application::get('options');
-				$isAdmin = self::isAdmin();
-				$debugOn = $options->toggleME_debug_displayWidgetId;
 
 				if(empty($perms['toggle_widgets_usr']) || !$options->toggleME_selected_areas['widgets'])
 				{
 					break;
 				}
 
+				$isAdmin = self::isAdmin();
+				$debugOn = $options->toggleME_debug_displayWidgetId;
 				$excludedWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Excluded));
 				$disabledWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Disabled));
 				$pureCssMode = self::isPureCssMode();
@@ -294,6 +298,11 @@ class Sedo_ToggleME_Listener
 
 				//Dom management
 				$zendMethod = self::$zendMethod;
+
+				if($options->toggleme_ns_node_regex)
+				{
+					self::$purePhpMethodNpRegexFix = true;
+				}
 				
 				if(!$zendMethod)
 				{
@@ -674,11 +683,8 @@ class Sedo_ToggleME_Listener
 			$perms['quickCheck'] = true;
 		}		
 		
-		if($options->toggleME_selected_areas['node_subforums'])
+		if($options->toggleME_selected_areas['node_subforums'] || $options->toggleME_selected_areas['polls'])
 		{
-			/*2014-08-11: done in templates*/
-			//$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Wrapped_Nodes);
-			//$perms['toggle_wrappednoded_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;		
 		}
 		
@@ -861,14 +867,16 @@ class Sedo_ToggleME_Listener
 
 	/* For test purpose - do not change this */
 	private static $zendMethod = false;
-	private static $purePhpMethodNpRegexFix = false;	
+	private static $purePhpMethodNpRegexFix = false; //XenOption	
 }
-/*
-	DEV TOOLS:
-	$mergedParams = array_merge($template->getParams(), $hookParams);
-	Zend_Debug::dump($mergedParams["nodeList"]["nodesGrouped"][0]);
-	if ($hookName == $hookName) { $contents .= '<span style="diplay:inline;color:red;">' . $hookName . '</span><br />'; }
-	if ($templateName == $templateName) { $content .= '<span style="diplay:inline;color:red;">' . $templateName . '</span><br />'; }
-	in templates: {xen:helper dump, $category.node_id}
-*/
+
+/***
+ *	DEV TOOLS:
+ *	$mergedParams = array_merge($template->getParams(), $hookParams);
+ *	Zend_Debug::dump($mergedParams["nodeList"]["nodesGrouped"][0]);
+ *	if ($hookName == $hookName) { $contents .= '<span style="diplay:inline;color:red;">' . $hookName . '</span><br />'; }
+ *	if ($templateName == $templateName) { $content .= '<span style="diplay:inline;color:red;">' . $templateName . '</span><br />'; }
+ *	in templates: {xen:helper dump, $category.node_id}
+ ***/
+ 
 //Zend_Debug::dump($contents);

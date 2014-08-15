@@ -1,6 +1,6 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 2.3.1*/
+	/*ToggleME 3.0.0*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
@@ -41,7 +41,11 @@
 			$('.tglSidebar').ready(function(){
 				self.bakeBlocks();	
 			});		
-		
+
+			// Polls
+			$('.tglPoll').ready(function(){
+				self.bakePolls();	
+			});		
 		},
 		initEffects: function()
 		{
@@ -58,7 +62,7 @@
 			self.initEffects();
 
 			//Check if toggle option is activated
-			if($tglPostbit.length == 0){
+			if(!$tglPostbit.length){
 				return;
 			}
 
@@ -308,6 +312,37 @@
 
 			$(hook_active).toggle(collapseME, expandME);
 			$(hook_inactive).toggle(expandME, collapseME);
+		},
+		bakePolls: function()
+		{
+			var $toggle = $('.tglPoll'),
+				$lastPollDl = $('dl.pollLast'),
+				$target = $toggle.parent().nextUntil($lastPollDl.next()).hide(),
+				phrase = [$toggle.data('show'), $toggle.data('hide'), $toggle.data('ellipsis')];
+
+			if(!$toggle.length)
+				return;
+
+			$toggle.removeClass('hide').text(phrase[0]);
+			
+			var ellipsis = function(){
+				$('<span class="tglEllipsis" />').text(phrase[2]).insertAfter($target.last());			
+			}
+			
+			ellipsis();
+			
+			var open = function(){
+				var $el = $(this).addClass('active').text(phrase[1]);
+				$target.slideDown(self.d, self.e).last().next().remove();
+			};
+			
+			var close = function(){
+				var $el = $(this).removeClass('active').text(phrase[0]);
+				$target.slideUp(self.d, self.e);
+				ellipsis();				
+			};
+			
+			$toggle.toggle(open, close);
 		},
 		bakeBlocks: function()
 		{
