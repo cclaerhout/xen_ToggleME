@@ -1,5 +1,5 @@
 <?php
-// Last modified: version 3.0.0 Beta 3
+// Last modified: version 3.0.0 Beta 4
 class Sedo_ToggleME_Listener
 {
 	public static function template_create(&$templateName, array &$params, XenForo_Template_Abstract $template)
@@ -108,9 +108,8 @@ class Sedo_ToggleME_Listener
 				}
 				else
 				{
-
-					$readyContent = mb_convert_encoding($contents, 'HTML-ENTITIES', 'UTF-8');
-					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>", 'utf-8');
+					$readyContent = self::beforeLoadHtml($contents);
+					$dom = new Zend_Dom_Query($readyContent, 'utf-8');
 					$categoryStripNodes = $dom->query('.categoryStrip');
 					$doc = $categoryStripNodes->getDocument();
 				}
@@ -319,19 +318,19 @@ class Sedo_ToggleME_Listener
 				}
 				else
 				{
-					$readyContent = htmlspecialchars_decode(utf8_decode(htmlentities($contents, ENT_COMPAT, 'UTF-8')));
-					$dom = new Zend_Dom_Query("<wip>{$readyContent}</wip>");
+					$readyContent = self::beforeLoadHtml($contents);
+					$dom = new Zend_Dom_Query($readyContent);
 					$widgetNodes = $dom->query('wip > div');
 					$doc = $widgetNodes->getDocument();			
 				}
-				
+
 				$doc->removeChild($doc->firstChild); //remove html tag
 
 				if(!$zendMethod)
 				{
 					$doc->removeChild($doc->firstChild); //remove xml fix
 				}
-				
+
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
 			
 				foreach($widgetNodes as $widgetNode)
@@ -485,13 +484,18 @@ class Sedo_ToggleME_Listener
 
 	public static function beforeLoadHtml($html)
 	{
-		$html = "<wip>{$html}</<wip>";
+		$html = "<wip>{$html}</wip>";
+		
+		if(self::$zendMethod)
+		{
+			$html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+		}
 		
 		if(self::$zendMethod || self::$purePhpMethodNpRegexFix)
 		{
 			$html = self::fixNpTagsRegex($html);
 		}
-		
+
 		return $html;
 	}
 
@@ -503,8 +507,9 @@ class Sedo_ToggleME_Listener
 		}
 
 		/*Get rid of the body tag: too difficult to do it with the dom...*/
-		$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
-		//$html = substr($html, 5, -7);	
+		$html = substr($html, 5, -7);
+		//$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
+
 		return $html;
 	}	
 
@@ -683,7 +688,10 @@ class Sedo_ToggleME_Listener
 			$perms['quickCheck'] = true;
 		}		
 		
-		if($options->toggleME_selected_areas['node_subforums'] || $options->toggleME_selected_areas['polls'])
+		if($options->toggleME_selected_areas['node_subforums'] 
+			|| !empty($options->toggleME_selected_areas['polls'])
+			|| !empty($options->toggleME_selected_areas['sidebar'])			
+		)
 		{
 			$perms['quickCheck'] = true;		
 		}

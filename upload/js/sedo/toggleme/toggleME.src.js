@@ -45,7 +45,12 @@
 			// Polls
 			$('.tglPoll').ready(function(){
 				self.bakePolls();	
-			});		
+			});
+
+			// Sidebar full
+			$('.tglAllSidebar').ready(function(){
+				self.bakeSidebar();	
+			});					
 		},
 		initEffects: function()
 		{
@@ -99,7 +104,7 @@
 		{
 			var cdata = ccat + ':' + cval, self = this;	
 		
-			if (self.mycookie && !(self.mycookie == 'undefined')){
+			if (self._validCookie()){
 				//if the cookie exists and its value is defined [to check]
 				var cdatas = self.mycookie.split('[]'),
 					ccat_regex = new RegExp( ccat + ":[01]", "i" );
@@ -146,7 +151,7 @@
 			});
 		
 			//Check inside cookie which category has to be collapsed
-			if (self.mycookie && !(self.mycookie == 'undefined')){
+			if (self._validCookie()){
 			//The cookie exists, let's proceed
 				//Let's get all the categories with ID (XenForo Categories -  template_postrender fct || XenForo Add-ons -  template_hook fct)
 				$hook.each(function(index){
@@ -259,7 +264,7 @@
 			}
 		
 			//Cookie check
-			if (self.mycookie && !(self.mycookie == 'undefined')){
+			if (self._validCookie()){
 				if($hook.hasClass('tglNodeOff')){
 					var check_regex = new RegExp(cookieCategory + ":0", "i" );
 
@@ -315,7 +320,8 @@
 		},
 		bakePolls: function()
 		{
-			var $toggle = $('.tglPoll'),
+			var self = this,
+				$toggle = $('.tglPoll'),
 				$lastPollDl = $('dl.pollLast'),
 				$target = $toggle.parent().nextUntil($lastPollDl.next()).hide(),
 				phrase = [$toggle.data('show'), $toggle.data('hide'), $toggle.data('ellipsis')];
@@ -402,7 +408,7 @@
 	      		});
 	      	
 	      		//Cookie check
-	      		if (self.mycookie && !(self.mycookie == 'undefined')){
+	      		if (self._validCookie()){
 	      		//The cookie exists, let's proceed
 	      			//Let's get all the categories with ID (XenForo Categories -  template_postrender fct || XenForo Add-ons -  template_hook fct)
 	      			$hook.each(function(index){
@@ -468,7 +474,115 @@
 
 	      		$(hook_active).toggle(collapseME, expandME);
 	      		$(hook_inactive).toggle(expandME, collapseME);
+	      	},
+	      	bakeSidebar: function()
+	      	{
+			var self = this,
+				$toggle = $('.tglAllSidebar'),
+				$target = $toggle.siblings(),
+				$mainContainer = $toggle.parents('.pageContent').children('.mainContainer'),
+				phrase = [$toggle.data('show'), $toggle.data('hide')],
+				initPhrase,
+				d = '600',
+				e = 'easeInSine',
+				cookie_data_name = 'sidebar',
+				$fbClones = $()
+				wip = false;
+
+			if(!$toggle.length)
+				return;	 
+
+			var open = function($this, fast){
+				if(wip == true)
+					return;
+				
+				wip = true;
+				/*Fb fix - start*/
+				$fbClones.each(function(){
+					var $fbClone = $(this).removeClass('tglHide'),
+						id = $fbClone.data('tglId');
+					$('.tglFbPlaceholder[data-id="'+id +'"]').replaceWith($fbClone);
+				});
+				/*Fb fix - end*/
+
+				$this.text(phrase[1]).removeClass('closed');
+				$mainContainer.removeClass('collapsed');
+
+				if(fast === true){ 
+					$target.show();
+					wip = false;
+				} else {
+					$target.slideDown(d, e, function(){
+						wip = false;	
+					});
+				}
+			};
+		
+			var close = function($this, fast){
+				if(wip == true)
+					return;
+				
+				wip = true;
+							
+				/*Fb fix - start*/
+				var $fbTags = $target.find('fb\\:like');
+
+				if(!$fbTags.find('iframe').length){
+					$fbClones = $fbTags.clone();
+			
+					$fbTags.each(function(i){
+						 $(this).replaceWith('<div class="tglFbPlaceholder" data-id="'+i+'" />');
+					});
+				
+					$fbClones.each(function(i){
+						$(this).data('tglId', i).addClass('tglHide').appendTo('body');
+					});
+				}
+				/*Fb fix - end*/
+
+				$this.text(phrase[0]).addClass('closed');
+				if(fast === true){ 
+					$target.hide(); 
+					$mainContainer.addClass('collapsed');
+					wip = false;
+				}else {
+					$target.slideUp(d, e, function(){
+						$mainContainer.addClass('collapsed');
+						wip = false;
+					});
+				}
+			};
+			
+			var action = function(){
+				var $this = $(this), cookieVal;
+				if($this.hasClass('closed')){
+					open($this);
+					cookieVal = 1;
+				}else{
+					close($this);
+					cookieVal = 0;					
+				}
+				
+				self.bakeCookie(self.cookiename, cookie_data_name, cookieVal);	
+			};
+
+			if( self._validCookie() && new RegExp(cookie_data_name+":0", "i" ).test(self.mycookie) ){
+				close($toggle, true);
+			}
+			
+			if($toggle.hasClass('closed')){
+				initPhrase = phrase[0];
+			}else{
+				initPhrase = phrase[1];
+			}
+
+			$toggle.removeClass('hide').text(initPhrase).toggle(action, action);
+	      	},
+	      	_validCookie: function(){
+	      		var self = this;
+	      		return (self.mycookie && !(self.mycookie == 'undefined'));
 	      	}
+	      	
 	}
 
 	 XenForo.register('body', 'XenForo.ToggleME.initGlobal');
