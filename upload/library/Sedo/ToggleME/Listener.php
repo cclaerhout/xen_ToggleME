@@ -1,5 +1,4 @@
 <?php
-// Last modified: version 3.0.0 Beta 4
 class Sedo_ToggleME_Listener
 {
 	public static function template_create(&$templateName, array &$params, XenForo_Template_Abstract $template)
@@ -669,21 +668,44 @@ class Sedo_ToggleME_Listener
 
 		if($options->toggleME_selected_areas['node_categories'])
 		{
-			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Forumhome);
+			if($options->toggleME_Usergroups_Forumhome_All)
+			{
+				$chkusr = true;
+			}
+			else
+			{
+				$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Forumhome);			
+			}
 			$perms['toggle_forumhome_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
 		
 		if($options->toggleME_selected_areas['postbit_extra'])
 		{
-			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Postbit);
+			if($options->toggleME_Usergroups_Postbit_All)
+			{
+				$chkusr = true;
+			}
+			else
+			{
+				$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Postbit);
+			}
+			
 			$perms['toggle_postbit_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}
 		
 		if($options->toggleME_selected_areas['widgets'])
 		{
-			$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Widgets);
+			if($options->toggleME_Usergroups_Widgets_All)
+			{
+				$chkusr = true;
+			}
+			else
+			{
+				$chkusr = array_intersect($visitorUserGroupIds, $options->toggleME_Usergroups_Widgets);
+			}
+			
 			$perms['toggle_widgets_usr'] = (empty($chkusr)) ? false : true;
 			$perms['quickCheck'] = true;
 		}		
