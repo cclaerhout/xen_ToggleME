@@ -239,7 +239,7 @@ class Sedo_ToggleME_Listener
 					}
 				}
 
-				$html = $doc->saveHTML($dom->documentElement);
+				$html = $doc->saveHTML($doc->documentElement);
 				$html = self::afterSaveHtml($html);
 				$contents = $html;
 			break;
@@ -469,7 +469,7 @@ class Sedo_ToggleME_Listener
 					}
 				}
 				
-				$html = $doc->saveHTML();
+				$html = $doc->saveHTML($doc->documentElement);
 				$html = self::afterSaveHtml($html);				
 				$contents = $html;
 
@@ -506,8 +506,7 @@ class Sedo_ToggleME_Listener
 		}
 
 		/*Get rid of the body tag: too difficult to do it with the dom...*/
-		$html = substr($html, 5, -7);
-		//$html = preg_replace('#^<wip>(.*)</wip>$#si', '$1', $html);
+		$html = preg_replace('#^\s*<wip>(.*)</wip>\s*$#si', '$1', $html);
 
 		return $html;
 	}	
