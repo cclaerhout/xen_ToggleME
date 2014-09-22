@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.0" version_id="31" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.1" version_id="32" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -434,7 +434,7 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_Usergroups_Postbit_All_explain" version_id="29" version_string="3.0.0 BETA 4"><![CDATA[If you want to enable this toggle function for all usergroups, simply check this box.]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Visible Extra Information for these usergroups]]></phrase>
-    <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState_explain" version_id="14" version_string="2.1.1"><![CDATA[This option will make the users extra information for the selected usergroups.]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState_explain" version_id="31" version_string="3.0.0"><![CDATA[This option will make the users extra information visible for the selected usergroups even if you have selected to hide them by default.]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_Position" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Toggle Button Position]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_Position_explain" version_id="14" version_string="2.1.1"><![CDATA[Use this option to modify the position of the Toggle Button inside the postbit. Default : "Basic User Information - top right".]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_State" version_id="12" version_string="2.01"><![CDATA[[ToggleME Postbit Area] State]]></phrase>
