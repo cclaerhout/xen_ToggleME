@@ -7,13 +7,13 @@ class Sedo_ToggleME_Listener
 		{
 			case "PAGE_CONTAINER":
 				$visitorStyle = (isset($params['visitorStyle'])) ? $params['visitorStyle'] : false;
-			
+
 				$config = array(
 					'state' => (self::forcePostbitExtraInfoDisplay()) ? 1 : (XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_State') == 'opened') ? 1 : 0,
 					'perms' => self::getPerms($visitorStyle),
 					'pureCss' => self::isPureCssMode()
 				);
-		
+
 				$params['toggleME'] = $config;
 			break;
 		}
@@ -736,7 +736,15 @@ class Sedo_ToggleME_Listener
 		else
 		{
 			$visitor = XenForo_Visitor::getInstance();
-			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+
+			$configUsergroup = XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_FOS_UsrgConf');
+
+			switch($configUsergroup)
+			{
+				case 'primary': $visitorUserGroupIds = $visitor['user_group_id']; break;
+				case 'secondary': $visitorUserGroupIds = explode(',', $visitor['secondary_group_ids']); break;
+				default: $visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+			}
 		}
 		
 		$validUserGroups =  XenForo_Application::get('options')->get('toggleME_Usergroups_Postbit_ForceOpenState');
@@ -747,6 +755,7 @@ class Sedo_ToggleME_Listener
 		}
 		
 		self::$_postbitForcedDisplay = $postbitForcedDisplay = (array_intersect($visitorUserGroupIds, $validUserGroups)) ? true : false;
+
 		return $postbitForcedDisplay;
 	}
 	

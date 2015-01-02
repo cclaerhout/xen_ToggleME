@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.1" version_id="32" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.2" version_id="34" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -176,6 +176,14 @@
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="302"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit_FOS_UsrgConf" edit_format="select" data_type="string" can_backup="1">
+      <default_value>all</default_value>
+      <edit_format_params>all={xen:phrase sedo_toggleme_primary_and_secondary_usergroups}
+primary={xen:phrase sedo_toggleme_only_primary_usergroups}
+secondary={xen:phrase sedo_toggleme_only_secondary_usergroups}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="351"/>
     </option>
     <option option_id="toggleME_Usergroups_Postbit_ForceOpenState" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
@@ -435,6 +443,8 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Visible Extra Information for these usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState_explain" version_id="31" version_string="3.0.0"><![CDATA[This option will make the users extra information visible for the selected usergroups even if you have selected to hide them by default.]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_FOS_UsrgConf" version_id="32" version_string="3.0.1"><![CDATA[Extra Information Usergroups Check Mode]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_FOS_UsrgConf_explain" version_id="32" version_string="3.0.1"><![CDATA[With the above option "Visible Extra Information for these usergroups", primary and secondary usergroups are checked by default. If yo]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_Position" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Toggle Button Position]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_Position_explain" version_id="14" version_string="2.1.1"><![CDATA[Use this option to modify the position of the Toggle Button inside the postbit. Default : "Basic User Information - top right".]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_State" version_id="12" version_string="2.01"><![CDATA[[ToggleME Postbit Area] State]]></phrase>
@@ -461,6 +471,9 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <phrase title="option_toggleME_Widgets_Excluded_explain" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[Some widgets should not have the toggle function activated. For example, the login button and the visitor panel. Each 'widget identifiant' must be separated with a coma.<br />
 <br />
 To find the 'widget identifiant', you can enable the debug option called "display widgets identifiants".]]></phrase>
+    <phrase title="sedo_toggleme_only_primary_usergroups" version_id="32" version_string="3.0.1"><![CDATA[Only Primary usergroups]]></phrase>
+    <phrase title="sedo_toggleme_only_secondary_usergroups" version_id="32" version_string="3.0.1"><![CDATA[Only Secondary usergroups]]></phrase>
+    <phrase title="sedo_toggleme_primary_and_secondary_usergroups" version_id="32" version_string="3.0.1"><![CDATA[Both Primary & Secondary usergroups (default)]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedDescription_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedDescription_master" version_id="5" version_string="V.1.5"><![CDATA[Category Strip Collapsed Description]]></phrase>
     <phrase title="style_property_CategoryStripCollapsedTitle_description_master" version_id="5" version_string="V.1.5"><![CDATA[]]></phrase>
