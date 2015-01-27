@@ -1,6 +1,6 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 3.0.0*/
+	/*ToggleME 3.1.0*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
@@ -61,7 +61,8 @@
 		{
 			var self = XenForo.ToggleME,
 				$tglPostbit = $element.find('.tglPosbit'),
-				$extraUserInfo = $element.find('.extraUserInfo');
+				$extraUserInfo = $element.find('.extraUserInfo'),
+				postbitState = XenForo.toogleMeConfig.postbit_state;
 
 			//Init Effects
 			self.initEffects();
@@ -82,7 +83,8 @@
 				var $el = $(this);
 				$el.parents('.messageUserBlock').find('.extraUserInfo')
 					.slideDown(self.d, self.e).removeClass('toggleHidden');
-      				$el.removeClass('inactive').addClass('active');			
+      				$el.removeClass('inactive').addClass('active');
+      				self.faToggle($el, true);		
 			};
 			
 			var close = function(){
@@ -90,15 +92,19 @@
 				$el.parents('.messageUserBlock').find('.extraUserInfo')
 					.slideUp(self.d, self.e).addClass('toggleHidden');
 				$el.removeClass('active').addClass('inactive');			
+      				self.faToggle($el);
 			};
 
-			if(XenForo.toogleMeConfig.postbit_state === 0){
+			if(postbitState === 0){
 				$extraUserInfo.hide();
 				$tglPostbit.addClass('inactive').toggle(open, close);
 			}else{
 				$extraUserInfo.show();
 	      			$tglPostbit.addClass('active').toggle(close, open);
 			}
+
+			self.faToggle($element, postbitState);
+			
 		},
 		bakeCookie: function(cname, ccat, cval) 
 		{
@@ -136,7 +142,7 @@
 				hook_inactive = hook+'.inactive',
 				hook_defaultoff = hook+'.tglWOFF',
 				chkClass = false,
-				CategoryStripCollapsed = 'CategoryStripCollapsed', categoryStrip = 'categoryStrip',
+				categoryStripCollapsed = 'CategoryStripCollapsed', categoryStrip = 'categoryStrip',
 				inactive = 'inactive', active = 'active';
 	
 			if(!$hook.hasClass('tglDnt')){
@@ -173,7 +179,7 @@
 						$target.prev().children(hook).removeClass(active).addClass(inactive);
 						if(chkClass == true)
 						{
-							$target.prev().removeClass(categoryStrip).addClass(CategoryStripCollapsed);
+							$target.prev().removeClass(categoryStrip).addClass(categoryStripCollapsed);
 						}
 					}
 				});
@@ -182,7 +188,7 @@
 				$(hook_defaultoff).parent().next().hide();
 				$(hook_defaultoff).removeClass(active).addClass(inactive);
 				if(chkClass == true){			
-					$(hook_defaultoff).parent().removeClass(categoryStrip).addClass(CategoryStripCollapsed);
+					$(hook_defaultoff).parent().removeClass(categoryStrip).addClass(categoryStripCollapsed);
 				}
 			};
 
@@ -192,8 +198,8 @@
       					$elToSlide = $parent.next(),
     					classToRemove = (expand) ? inactive : active,
       					classToAdd = (expand) ? active : inactive,
-      					parentClassToRemove = (expand) ? CategoryStripCollapsed : categoryStrip,
-      					parentClassToAdd = (expand) ? categoryStrip : CategoryStripCollapsed;
+      					parentClassToRemove = (expand) ? categoryStripCollapsed : categoryStrip,
+      					parentClassToAdd = (expand) ? categoryStrip : categoryStripCollapsed;
 
       				if(self.bloodyIE) {
       					if(expand){
@@ -208,6 +214,8 @@
       						$elToSlide.slideUp(self.d, self.e);
 	      				}
       				}
+
+				self.faToggle($this, expand);
 
       				$this.removeClass(classToRemove).addClass(classToAdd);
 
@@ -234,6 +242,9 @@
 
 			$(hook_active).toggle(collapseME, expandME);
 			$(hook_inactive).toggle(expandME, collapseME);
+			
+			self.faToggle($(hook_active), true);
+			self.faToggle($(hook_inactive));
 		},
 		bakeNodeList: function()
 		{
@@ -451,6 +462,8 @@
 	      				
 	      				$this.removeClass(classToRemove).addClass(classToAdd);
 	      				$this.parent().removeClass(parentClassToRemove).addClass(parentClassToAdd);
+
+				self.faToggle($this, expand);
 	      	
       				var num = $this.attr('id');
       			
@@ -474,6 +487,9 @@
 
 	      		$(hook_active).toggle(collapseME, expandME);
 	      		$(hook_inactive).toggle(expandME, collapseME);
+
+			self.faToggle($(hook_active), true);
+			self.faToggle($(hook_inactive));	      		
 	      	},
 	      	bakeSidebar: function()
 	      	{
@@ -492,6 +508,19 @@
 			if(!$toggle.length)
 				return;	 
 
+			$.each(phrase, function(i, v){
+				var tmp = v.split('|'), output = '';
+					
+				$.each(tmp, function(ti, tv){
+					if(tv.indexOf('fa') === 0){
+						output += '<i class="fa '+tv+'"></i>';
+					}else{
+						output += tv;
+					}
+				});
+				phrase[i] = output;
+			});
+
 			var open = function($this, fast){
 				if(wip == true)
 					return;
@@ -505,7 +534,7 @@
 				});
 				/*Fb fix - end*/
 
-				$this.text(phrase[1]).removeClass('closed');
+				$this.html(phrase[1]).removeClass('closed');
 				$mainContainer.removeClass('collapsed');
 
 				if(fast === true){ 
@@ -540,7 +569,7 @@
 				}
 				/*Fb fix - end*/
 
-				$this.text(phrase[0]).addClass('closed');
+				$this.html(phrase[0]).addClass('closed');
 				if(fast === true){ 
 					$target.hide(); 
 					$mainContainer.addClass('collapsed');
@@ -576,8 +605,19 @@
 				initPhrase = phrase[1];
 			}
 
-			$toggle.removeClass('hide').text(initPhrase).toggle(action, action);
+			$toggle.removeClass('hide').html(initPhrase).toggle(action, action);
 	      	},
+		faToggle: function($parent, expand){
+			var $fa = $parent.find('.tgl_fa');
+			if(!$fa.length) return;
+
+			var openClass = $fa.data('open'), 
+				closeClass = $fa.data('close'),
+				classToAdd = (expand) ? closeClass : openClass,
+				classToRemove = (expand) ? openClass : closeClass;
+					
+			$fa.removeClass(classToRemove).addClass(classToAdd);
+		},
 	      	_validCookie: function(){
 	      		var self = this;
 	      		return (self.mycookie && !(self.mycookie == 'undefined'));

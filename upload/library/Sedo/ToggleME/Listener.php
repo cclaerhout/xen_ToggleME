@@ -37,6 +37,8 @@ class Sedo_ToggleME_Listener
 				/*Settings*/
 				$isAdmin = self::isAdmin();
 				$pureCssMode = self::isPureCssMode();
+				$faCssMode = self::isPureCssMode('fa');
+				
 				$viewName = $template->getParam('viewName');
 				$closed_xenCats = $options->toggleME_DefaultOff_XenCat;
 				$closed_extraCats = array_map('trim', explode(',', $options->toggleME_DefaultOff_ExtraCat));
@@ -160,7 +162,14 @@ class Sedo_ToggleME_Listener
 					
 					if($pureCssMode)
 					{
-						$classTarget .= ' pcss';
+						if($faCssMode)
+						{
+							$classTarget .= ' facss';
+						}
+						else
+						{
+							$classTarget .= ' pcss';
+						}
 					}
 					
 					if($options->toggleME_Categories_CloseClass_Off)
@@ -205,6 +214,32 @@ class Sedo_ToggleME_Listener
 						}						
 					}
 
+					$hasCategoryText = false;
+					if($categoryStripNode->hasChildNodes())
+					{
+						foreach($categoryStripNode->childNodes as $categoryChildNode)
+						{
+							if($categoryChildNode->nodeType == 3){
+								continue;
+							}
+
+							$checkClass = $categoryChildNode->getAttribute('class');
+							if(strpos($checkClass , 'categoryText') !== false)
+							{
+								$hasCategoryText = true;
+								break;	
+							}
+						}
+					}
+					
+					if(!$hasCategoryText)
+					{
+						$classTarget .= ' noTxt';
+					}
+
+					$categoryStripNodeClass = $categoryStripNode->getAttribute('class');
+					$categoryStripNode->setAttribute('class', "$categoryStripNodeClass toggleMEtrigger");
+
 					/*New node creation*/
 					$newNode =  $categoryStripNode->ownerDocument->createElement('div');
 					$newNode->setAttribute('id', $idName);
@@ -212,8 +247,21 @@ class Sedo_ToggleME_Listener
 
 					if($pureCssMode)
 					{
-						$pureCssSpanNode = $categoryStripNode->ownerDocument->createElement('span');
-						$newNode->appendChild($pureCssSpanNode); 
+						if(!$faCssMode)
+						{
+							$pureCssSpanNode = $categoryStripNode->ownerDocument->createElement('span');
+							$newNode->appendChild($pureCssSpanNode);
+						}
+						else
+						{
+							list($openClass, $closeClass) = self::getFaConfig('cat');
+
+							$faCssSpanNode = $categoryStripNode->ownerDocument->createElement('i');
+							$faCssSpanNode->setAttribute('class', 'tgl_fa fa');
+							$faCssSpanNode->setAttribute('data-open', $openClass);
+							$faCssSpanNode->setAttribute('data-close', $closeClass);
+							$newNode->appendChild($faCssSpanNode);
+						}
 					}
 
 					/*New node insertion*/
@@ -251,6 +299,7 @@ class Sedo_ToggleME_Listener
 				$options = XenForo_Application::get('options');
 				$position = $options->toggleME_Usergroups_Postbit_Position;
 				$pureCssMode = self::isPureCssMode();
+				$faCssMode = self::isPureCssMode('fa');
 				
 				if(empty($perms['toggle_postbit_usr']) || !$options->toggleME_selected_areas['postbit_extra'])
 				{
@@ -266,7 +315,15 @@ class Sedo_ToggleME_Listener
 
 				if($pureCssMode)
 				{
-					$replace = "$0<div class='tglPosbit pos_$position pcss'><span></span></div>";
+					if($faCssMode)
+					{
+						list($openClass, $closeClass) = self::getFaConfig('postbits');
+						$replace = "$0<div class='tglPosbit pos_$position facss'><i class='tgl_fa fa' data-open='$openClass' data-close='$closeClass'></i></div>";					
+					}
+					else
+					{
+						$replace = "$0<div class='tglPosbit pos_$position pcss'><span></span></div>";
+					}
 				}
 				else
 				{
@@ -292,6 +349,7 @@ class Sedo_ToggleME_Listener
 				$excludedWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Excluded));
 				$disabledWidgetIds = array_map('trim', explode(',', $options->toggleME_Widgets_Disabled));
 				$pureCssMode = self::isPureCssMode();
+				$faCssMode = self::isPureCssMode('fa');
 				$widgetFrameworkEnabled = (strpos($contents, 'WidgetFramework') !== false);				
 
 				//Dom management
@@ -451,9 +509,23 @@ class Sedo_ToggleME_Listener
 
 					if($pureCssMode)
 					{
-						$classToAdd .= ' pcss';
-						$pureCssSpanNode = $node->ownerDocument->createElement('span');
-						$newNode->appendChild($pureCssSpanNode); 
+						if($faCssMode)
+						{
+							$classToAdd .= ' facss';
+							list($openClass, $closeClass) = self::getFaConfig('widgets');
+							
+							$faCssSpanNode =  $node->ownerDocument->createElement('i');
+							$faCssSpanNode->setAttribute('class', 'tgl_fa fa');
+							$faCssSpanNode->setAttribute('data-open', $openClass);
+							$faCssSpanNode->setAttribute('data-close', $closeClass);
+							$newNode->appendChild($faCssSpanNode);						
+						}
+						else
+						{
+							$classToAdd .= ' pcss';
+							$pureCssSpanNode = $node->ownerDocument->createElement('span');
+							$newNode->appendChild($pureCssSpanNode); 						
+						}
 					}
 					
 					$newNode->setAttribute('class', $classToAdd);
@@ -788,15 +860,68 @@ class Sedo_ToggleME_Listener
 	}
 	
 	protected static $_isPureCssMode;
-	public static function isPureCssMode()
+	protected static $_isFaMode;
+	protected static $_faConfig = array();
+	public static function isPureCssMode($opt = null)
 	{
 		if(!self::$_isPureCssMode)
 		{
-			self::$_isPureCssMode = XenForo_Template_Helper_Core::styleProperty('toggleMe_pureCssMode');
+			self::$_isFaMode = XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode');
+			if(self::$_isFaMode)
+			{
+				self::$_isPureCssMode = true;
+				self::$_faConfig = array(
+					'cat' => array(
+						'open' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_cat_open'),
+						'close' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_cat_close')
+					),
+					'widgets' => array(
+						'open' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_widgets_open'),
+						'close' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_widgets_close')
+					),
+					'postbits' => array(
+						'open' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_postbits_open'),
+						'close' => XenForo_Template_Helper_Core::styleProperty('toggleMe_faMode_postbits_close')
+					)
+				);
+			}
+			else
+			{
+				self::$_isPureCssMode = XenForo_Template_Helper_Core::styleProperty('toggleMe_pureCssMode');
+			}
+		}
+
+		if($opt == 'fa')
+		{
+			return self::$_isFaMode;
 		}
 
 		return self::$_isPureCssMode;
 	}
+
+	protected static $_faFallback = array('open' => '', 'close' => '');
+
+	public static function getFaConfig($configKey)
+	{
+		if(empty(self::$_faConfig))
+		{
+			self::isPureCssMode();
+		}
+
+		if(!isset(self::$_faConfig[$configKey]))
+		{
+			return self::$_faFallback;
+		}
+
+		$config = self::$_faConfig[$configKey];
+
+		$open = (empty($config['open'])) ? self::$_faFallback['open'] : $config['open'];
+		$close = (empty($config['close'])) ? self::$_faFallback['close'] : $config['close'];
+		
+		return array($open, $close);
+	}
+	
+	
 
 	/***
 	 *	This function will fix the html tags with namespaces in them using some regex
