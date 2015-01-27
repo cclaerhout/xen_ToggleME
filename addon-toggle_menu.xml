@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.0.2" version_id="34" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.1.0" version_id="35" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -486,6 +486,18 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <phrase title="style_property_secondaryContentCollapsedTitle_master" version_id="8" version_string="1.7"><![CDATA[Widget Collapsed Title]]></phrase>
     <phrase title="style_property_secondaryContentCollapsed_description_master" version_id="8" version_string="1.7"><![CDATA[Those values are based on default "secondaryContent" property (from "Building Blocks" menu). You might need to update them according to your own style.]]></phrase>
     <phrase title="style_property_secondaryContentCollapsed_master" version_id="8" version_string="1.7"><![CDATA[Widget Collapsed]]></phrase>
+    <phrase title="style_property_tglFaCatClose_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaCatClose_master" version_id="34" version_string="3.0.2"><![CDATA[FA Categories (close)]]></phrase>
+    <phrase title="style_property_tglFaCatOpen_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaCatOpen_master" version_id="34" version_string="3.0.2"><![CDATA[FA Categories (open)]]></phrase>
+    <phrase title="style_property_tglFaPostbitsClose_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaPostbitsClose_master" version_id="34" version_string="3.0.2"><![CDATA[FA Postbits (close)]]></phrase>
+    <phrase title="style_property_tglFaPostbitsOpen_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaPostbitsOpen_master" version_id="34" version_string="3.0.2"><![CDATA[FA Postbits (open)]]></phrase>
+    <phrase title="style_property_tglFaWidgetsClose_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaWidgetsClose_master" version_id="34" version_string="3.0.2"><![CDATA[FA Widgets (close)]]></phrase>
+    <phrase title="style_property_tglFaWidgetsOpen_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_tglFaWidgetsOpen_master" version_id="34" version_string="3.0.2"><![CDATA[FA Widgets (open)]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_active_description_master" version_id="5" version_string="V.1.5"><![CDATA[You can configure here  the expand button design. If you've got many sub-forums inside a forum, they will appear above the threads. ToggleME inserts this button above them.]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_active_master" version_id="5" version_string="V.1.5"><![CDATA[Nodelist Expand Container]]></phrase>
     <phrase title="style_property_tglNodelist_forumview_active_text_description_master" version_id="5" version_string="V.1.5"><![CDATA[Choose here the font, the color, etc.]]></phrase>
@@ -498,6 +510,20 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <phrase title="style_property_tglSidebarClosed_master" version_id="28" version_string="3.0.0 BETA 3"><![CDATA[Sidebar Toggle Button (closed state)]]></phrase>
     <phrase title="style_property_tglSidebar_description_master" version_id="28" version_string="3.0.0 BETA 3"><![CDATA[]]></phrase>
     <phrase title="style_property_tglSidebar_master" version_id="28" version_string="3.0.0 BETA 3"><![CDATA[Sidebar Toggle Button (normal state)]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_cat_close_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_cat_close_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Categories button close class]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_cat_open_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_cat_open_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Categories button open class]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_description_master" version_id="34" version_string="3.0.2"><![CDATA[This option will use the Font-Awesome icons (font-awesome must have been installed on your board)]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_master" version_id="34" version_string="3.0.2"><![CDATA[Enable the Font-Awesome mode]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_postbits_close_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_postbits_close_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Postbits button close class]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_postbits_open_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_postbits_open_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Postbits button open class]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_widgets_close_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_widgets_close_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Widgets button close class]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_widgets_open_description_master" version_id="34" version_string="3.0.2"><![CDATA[]]></phrase>
+    <phrase title="style_property_toggleMe_faMode_widgets_open_master" version_id="34" version_string="3.0.2"><![CDATA[FA - Widgets button open class]]></phrase>
     <phrase title="style_property_toggleMe_pureCssModeCatColor_description_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[]]></phrase>
     <phrase title="style_property_toggleMe_pureCssModeCatColor_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[Pure css - categories button main color]]></phrase>
     <phrase title="style_property_toggleMe_pureCssModePostbitColor_description_master" version_id="25" version_string="3.0.0 BETA 1"><![CDATA[]]></phrase>
@@ -538,6 +564,19 @@ To find the 'widget identifiant', you can enable the debug option called "displa
     <property property_name="toggleMe_pureCssModePostbitColor" property_type="scalar" definition="1" group_name="toggleME" title="Pure css - postbits button main color" description="" css_components="" scalar_type="color" scalar_parameters="" display_order="40" sub_group="purecss"><![CDATA[#b2b2b2]]></property>
     <property property_name="tglSidebar" property_type="css" definition="1" group_name="toggleME" title="Sidebar Toggle Button (normal state)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="100" sub_group=""><![CDATA[{"border-color":"#b2b2b2","border-style":"dotted","border-width":"1px","color":"#b2b2b2","extra":"position: relative;\ntext-align: center;\ntop: 5px;\ncursor: pointer;","margin-left":"auto","width":"20px"}]]></property>
     <property property_name="tglSidebarClosed" property_type="css" definition="1" group_name="toggleME" title="Sidebar Toggle Button (closed state)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="110" sub_group=""><![CDATA[{"extra":"top: 10px;","font-size":"11pt","padding-bottom":"2px","padding-top":"2px","width":"100%"}]]></property>
+    <property property_name="toggleMe_faMode" property_type="scalar" definition="1" group_name="toggleME" title="Enable the Font-Awesome mode" description="This option will use the Font-Awesome icons (font-awesome must have been installed on your board)" css_components="" scalar_type="boolean" scalar_parameters="" display_order="100" sub_group="FA"><![CDATA[0]]></property>
+    <property property_name="toggleMe_faMode_cat_open" property_type="scalar" definition="1" group_name="toggleME" title="FA - Categories button open class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="110" sub_group="FA"><![CDATA[fa-toggle-down]]></property>
+    <property property_name="toggleMe_faMode_cat_close" property_type="scalar" definition="1" group_name="toggleME" title="FA - Categories button close class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="120" sub_group="FA"><![CDATA[fa-minus-square-o]]></property>
+    <property property_name="toggleMe_faMode_widgets_open" property_type="scalar" definition="1" group_name="toggleME" title="FA - Widgets button open class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="130" sub_group="FA"><![CDATA[fa-toggle-down]]></property>
+    <property property_name="toggleMe_faMode_widgets_close" property_type="scalar" definition="1" group_name="toggleME" title="FA - Widgets button close class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="140" sub_group="FA"><![CDATA[fa-minus-square-o ]]></property>
+    <property property_name="toggleMe_faMode_postbits_open" property_type="scalar" definition="1" group_name="toggleME" title="FA - Postbits button open class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="150" sub_group="FA"><![CDATA[fa-arrow-circle-down]]></property>
+    <property property_name="toggleMe_faMode_postbits_close" property_type="scalar" definition="1" group_name="toggleME" title="FA - Postbits button close class" description="" css_components="" scalar_type="" scalar_parameters="" display_order="160" sub_group="FA"><![CDATA[fa-arrow-circle-up]]></property>
+    <property property_name="tglFaCatOpen" property_type="css" definition="1" group_name="toggleME" title="FA Categories (open)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="120" sub_group=""><![CDATA[{"color":"@mutedTextColor","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"18px"}]]></property>
+    <property property_name="tglFaCatClose" property_type="css" definition="1" group_name="toggleME" title="FA Categories (close)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="130" sub_group=""><![CDATA[{"color":"@secondaryMedium","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"18px"}]]></property>
+    <property property_name="tglFaWidgetsOpen" property_type="css" definition="1" group_name="toggleME" title="FA Widgets (open)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="150" sub_group=""><![CDATA[{"color":"@secondaryLight","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"14px"}]]></property>
+    <property property_name="tglFaWidgetsClose" property_type="css" definition="1" group_name="toggleME" title="FA Widgets (close)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="160" sub_group=""><![CDATA[{"color":"@primaryLightish","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"14px"}]]></property>
+    <property property_name="tglFaPostbitsOpen" property_type="css" definition="1" group_name="toggleME" title="FA Postbits (open)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="170" sub_group=""><![CDATA[{"color":"@primaryLightish","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"14px"}]]></property>
+    <property property_name="tglFaPostbitsClose" property_type="css" definition="1" group_name="toggleME" title="FA Postbits (close)" description="" css_components="text,background,border,layout,extra" scalar_type="" scalar_parameters="" display_order="180" sub_group=""><![CDATA[{"color":"@primaryLightish","extra":"text-shadow: 1px 1px 1px #fff;","font-size":"14px"}]]></property>
     <group group_name="toggleME" display_order="9999">
       <title>ToggleME</title>
       <description>ToggleME addon options</description>
@@ -602,6 +641,103 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 	text-decoration: none;
 	color: {xen:property secondaryContentCollapsedTitle.color};
 }]]></template>
+    <template title="toggleme_facss.css" version_id="34" version_string="3.0.2"><![CDATA[<xen:comment>Configure here button for categories with & without child</xen:comment>
+.toggle_me.tglWchild.facss,
+.toggle_me.tglNOchild.facss
+{  
+	position: relative;
+}	
+
+.toggle_me.noTxt
+{  
+	margin-top: -4px;
+	margin-right: 1px;
+	//min-height: {xen:if '{xen:property tglFaCatClose.font-size} > {xen:property tglFaCatOpen.font-size}', '{xen:calc '{xen:property tglFaCatClose.font-size} - 6'}px',  '{xen:calc '{xen:property tglFaCatOpen.font-size} - 6'}px'};
+}
+
+	.toggle_me.facss .tgl_fa
+	{
+		position: absolute;
+		cursor: pointer;
+		right: 0;
+		z-index: 50;	
+	}
+
+	.toggle_me.facss.active .tgl_fa
+	{ 
+		{xen:property tglFaCatClose}
+	}
+
+	.toggle_me.facss.inactive .tgl_fa
+	{ 
+		{xen:property tglFaCatOpen}
+	}
+
+		.toggle_me.noTxt.facss .tgl_fa
+		{ 
+			font-size: 14px;
+		}
+
+<xen:comment>Configure here buttons inside postbit</xen:comment>
+.tglPosbit.facss{
+	position: relative;	
+}
+
+	.tglPosbit.facss .tgl_fa
+	{ 
+		position: absolute;
+		margin-top: 2px;
+		cursor: pointer;
+		right: 0;
+		z-index: 50;
+	}
+
+	.tglPosbit.facss.active .tgl_fa
+	{ 
+		{xen:property tglFaPostbitsClose}
+	}
+
+	.tglPosbit.facss.inactive .tgl_fa
+	{ 
+		{xen:property tglFaPostbitsOpen}
+	}
+
+
+.tglPosbit.pos_abvextra
+{
+	position: relative;
+	bottom: 4px;
+	right: -2px;
+}
+
+.extraUserInfo.toggleHidden
+{
+	display:none;
+}
+
+<xen:comment>Configure here buttons for sidebar blocks</xen:comment>
+.tglSidebar.facss
+{  
+	position: relative;
+}
+
+	.tglSidebar.facss .tgl_fa
+	{
+		position: absolute;
+		cursor: pointer;
+		right: 0;
+		z-index: 50;	
+	}
+
+	.tglSidebar.facss.active .tgl_fa
+	{ 
+		{xen:property tglFaWidgetsClose}
+	}
+
+	.tglSidebar.facss.inactive .tgl_fa
+	{ 
+		{xen:property tglFaWidgetsOpen}
+	}]]></template>
     <template title="toggleme_manual.css" version_id="14" version_string="2.1.1"><![CDATA[/*Configure here button for categories with child*/
 .tglWchild.inactive
 {  
@@ -709,10 +845,12 @@ To find the 'widget identifiant', you can enable the debug option called "displa
 	height: 16px;
 	cursor: pointer;
 }]]></template>
-    <template title="toggleme_page_container_js" version_id="24" version_string="3.0.0 WIP EARLY RELEASE"><![CDATA[<xen:require css="toggleme_auto.css" />
+    <template title="toggleme_page_container_js" version_id="34" version_string="3.0.2"><![CDATA[<xen:require css="toggleme_auto.css" />
 
-<xen:if is="!{xen:property toggleMe_pureCssMode} OR ({$visitor.getBrowser.isIE} AND {$visitor.getBrowser.IEis} < 8)">
+<xen:if is="(!{xen:property toggleMe_pureCssMode} AND !{xen:property toggleMe_faMode}) OR ({$visitor.getBrowser.isIE} AND {$visitor.getBrowser.IEis} < 8)">
 	<xen:require css="toggleme_manual.css" />
+<xen:elseif is="{xen:property toggleMe_faMode}" />
+	<xen:require css="toggleme_facss.css" />
 <xen:else />
 	<xen:require css="toggleme_purecss.css" />	
 </xen:if>
@@ -881,7 +1019,7 @@ span.tglEllipsis{
 	content:"–";
 	top: -1px;
 }]]></template>
-    <template title="toggleme_sidebar_trigger" version_id="29" version_string="3.0.0 BETA 4"><![CDATA[<xen:if is="{$xenOptions.toggleME_selected_areas.sidebar} AND ({xen:helper ismemberof, $visitor, $xenOptions.toggleME_Usergroups_Sidebar} OR {$xenOptions.toggleME_Usergroups_Sidebar_All})">
+    <template title="toggleme_sidebar_trigger" version_id="34" version_string="3.0.2"><![CDATA[<xen:if is="{$xenOptions.toggleME_selected_areas.sidebar} AND ({xen:helper ismemberof, $visitor, $xenOptions.toggleME_Usergroups_Sidebar} OR {$xenOptions.toggleME_Usergroups_Sidebar_All})">
 	<xen:require css="toggleme_sidebar_trigger.css" />
 	<div class="tglAllSidebar hide" data-show="{xen:phrase toggleMe_sidebar_show}" data-hide="{xen:phrase toggleMe_sidebar_hide}"></div>
 </xen:if>]]></template>
