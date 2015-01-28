@@ -495,7 +495,7 @@
 	      	{
 			var self = this,
 				$toggle = $('.tglAllSidebar'),
-				$manualToggle = $('.tglManualSidebar').removeClass('hide').addClass('opened'),
+				$manualToggle = $('.tglManualSidebar'),
 				$target = $toggle.siblings(),
 				$mainContainer = $toggle.parents('.pageContent').find('.mainContainer'),
 				phrase = [$toggle.data('show'), $toggle.data('hide')],
@@ -510,6 +510,7 @@
 				return;	 
 
 			if($manualToggle.length){
+				$manualToggle.removeClass('hide').addClass('opened');
 				$toggle.hide();
 				$mainContainer.addClass('manual');
 				$manualToggle.click(function(e){
