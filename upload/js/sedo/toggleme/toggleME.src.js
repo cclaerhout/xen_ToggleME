@@ -495,8 +495,9 @@
 	      	{
 			var self = this,
 				$toggle = $('.tglAllSidebar'),
+				$manualToggle = $('.tglManualSidebar').removeClass('hide').addClass('opened'),
 				$target = $toggle.siblings(),
-				$mainContainer = $toggle.parents('.pageContent').children('.mainContainer'),
+				$mainContainer = $toggle.parents('.pageContent').find('.mainContainer'),
 				phrase = [$toggle.data('show'), $toggle.data('hide')],
 				initPhrase,
 				d = '600',
@@ -507,6 +508,14 @@
 
 			if(!$toggle.length)
 				return;	 
+
+			if($manualToggle.length){
+				$toggle.hide();
+				$mainContainer.addClass('manual');
+				$manualToggle.click(function(e){
+					$toggle.trigger('click');
+				});
+			}
 
 			$.each(phrase, function(i, v){
 				var tmp = v.split('|'), output = '';
@@ -535,6 +544,7 @@
 				/*Fb fix - end*/
 
 				$this.html(phrase[1]).removeClass('closed');
+				$manualToggle.removeClass('closed').addClass('opened');				
 				$mainContainer.removeClass('collapsed');
 
 				if(fast === true){ 
@@ -570,6 +580,8 @@
 				/*Fb fix - end*/
 
 				$this.html(phrase[0]).addClass('closed');
+				$manualToggle.removeClass('opened').addClass('closed');
+				
 				if(fast === true){ 
 					$target.hide(); 
 					$mainContainer.addClass('collapsed');
@@ -590,6 +602,7 @@
 				}else{
 					close($this);
 					cookieVal = 0;					
+
 				}
 				
 				self.bakeCookie(self.cookiename, cookie_data_name, cookieVal);	

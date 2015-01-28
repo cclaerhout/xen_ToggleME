@@ -1023,7 +1023,7 @@ span.tglEllipsis{
 	<xen:require css="toggleme_sidebar_trigger.css" />
 	<div class="tglAllSidebar hide" data-show="{xen:phrase toggleMe_sidebar_show}" data-hide="{xen:phrase toggleMe_sidebar_hide}"></div>
 </xen:if>]]></template>
-    <template title="toggleme_sidebar_trigger.css" version_id="28" version_string="3.0.0 BETA 3"><![CDATA[.tglAllSidebar{
+    <template title="toggleme_sidebar_trigger.css" version_id="35" version_string="3.1.0"><![CDATA[.tglAllSidebar{
 	{xen:property tglSidebar}
 }
 
@@ -1043,6 +1043,10 @@ span.tglEllipsis{
 	margin-right: {xen:calc '{xen:property sidebar.width} + 10'}px;
 }
 
+.mainContainer.collapsed.manual .mainContent > *:first-child {
+	margin-right: 0;
+}
+
 <xen:if is="{xen:property enableResponsive}">
 @media (max-width:{xen:property maxResponsiveWideWidth})
 {
@@ -1056,6 +1060,19 @@ span.tglEllipsis{
 	opacity: 0;
 	height: 0px;
 	overflow: hidden;
+}]]></template>
+    <template title="toggleme_sidebar_trigger_manual" version_id="35" version_string="3.1.0"><![CDATA[<xen:require css="toggleme_sidebar_trigger_manual.css" />
+
+<div class="tglManualSidebar hide">
+	<p class="mode_o">Open</p>
+	<p class="mode_c">Close</p>
+</div>]]></template>
+    <template title="toggleme_sidebar_trigger_manual.css" version_id="35" version_string="3.1.0"><![CDATA[.tglManualSidebar.hide {display: none; }
+.tglManualSidebar.closed .mode_c{ display: none; }
+.tglManualSidebar.opened .mode_o{ display: none; }
+
+.tglManualSidebar.opened, .tglManualSidebar.closed {
+	cursor: pointer;
 }]]></template>
     <template title="toggleme_subforums_trigger" version_id="29" version_string="3.0.0 BETA 4"><![CDATA[<xen:require css="toggleme_subforums_trigger.css" />
 
