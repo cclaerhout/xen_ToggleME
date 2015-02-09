@@ -219,11 +219,12 @@ class Sedo_ToggleME_Listener
 					{
 						foreach($categoryStripNode->childNodes as $categoryChildNode)
 						{
-							if($categoryChildNode->nodeType == 3){
+							if($categoryChildNode->nodeType != XML_ELEMENT_NODE){
 								continue;
 							}
 
 							$checkClass = $categoryChildNode->getAttribute('class');
+
 							if(strpos($checkClass , 'categoryText') !== false)
 							{
 								$hasCategoryText = true;
