@@ -1,6 +1,6 @@
 !function($, window, document, _undefined)
 {    	
-	/*ToggleME 3.1.0*/
+	/*ToggleME 3.1.1*/
 	XenForo.ToggleME =
 	{
 		bloodyIE: false,
@@ -518,6 +518,19 @@
 				});
 			}
 
+			var resizeTrigger = function(i){
+				/**
+				 * Not conventional but needed for some sliders:
+				 * Let's trigger the resize event and cheat on the window height
+				 * by temporary overriding the jQuery width function
+				 */
+				var oHeight = jQuery.fn.height,
+					height = $(window).height();
+				jQuery.fn.height = function() { return height-i; };
+				$(window).resize();
+				jQuery.fn.height = oHeight;
+			}
+
 			$.each(phrase, function(i, v){
 				var tmp = v.split('|'), output = '';
 					
@@ -547,13 +560,22 @@
 				$this.html(phrase[1]).removeClass('closed');
 				$manualToggle.removeClass('closed').addClass('opened');				
 				$mainContainer.removeClass('collapsed');
+				
+				var keepHiddenElHidden = function(){
+					$target.find('.TglTmpHide').removeClass('TglTmpHide').hide();
+				};
 
 				if(fast === true){ 
 					$target.show();
 					wip = false;
+					resizeTrigger(1);
+					keepHiddenElHidden();
+					
 				} else {
 					$target.slideDown(d, e, function(){
-						wip = false;	
+						wip = false;
+						resizeTrigger(1);
+						keepHiddenElHidden();
 					});
 				}
 			};
@@ -580,6 +602,9 @@
 				}
 				/*Fb fix - end*/
 
+				/*Hidden Elements fix*/
+				$target.children('*:hidden').addClass('TglTmpHide');
+
 				$this.html(phrase[0]).addClass('closed');
 				$manualToggle.removeClass('opened').addClass('closed');
 				
@@ -587,10 +612,12 @@
 					$target.hide(); 
 					$mainContainer.addClass('collapsed');
 					wip = false;
+					resizeTrigger(-1);
 				}else {
 					$target.slideUp(d, e, function(){
 						$mainContainer.addClass('collapsed');
 						wip = false;
+						resizeTrigger(-1);
 					});
 				}
 			};
