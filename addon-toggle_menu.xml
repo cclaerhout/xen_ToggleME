@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.1.2" version_id="37" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="toggle_menu" title="Toggle ME" version_string="3.1.3" version_id="38" url="http://xenforo.com/community/resources/toggleme.137/" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -176,6 +176,12 @@
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="toggleME" display_order="302"/>
+    </option>
+    <option option_id="toggleME_Usergroups_Postbit_CloseWithMobiles" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="toggleME" display_order="311"/>
     </option>
     <option option_id="toggleME_Usergroups_Postbit_FOS_UsrgConf" edit_format="select" data_type="string" can_backup="1">
       <default_value>all</default_value>
@@ -440,6 +446,8 @@ To get a list of available language codes, <a href="http://www.iana.org/assignme
     <phrase title="option_toggleME_Usergroups_Postbit" version_id="4" version_string="V.1.3"><![CDATA[[ToggleME Postbit Area] Usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_All" version_id="29" version_string="3.0.0 BETA 4"><![CDATA[All usergroups?]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_All_explain" version_id="29" version_string="3.0.0 BETA 4"><![CDATA[If you want to enable this toggle function for all usergroups, simply check this box.]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_CloseWithMobiles" version_id="37" version_string="3.1.2"><![CDATA['Close' state on mobiles]]></phrase>
+    <phrase title="option_toggleME_Usergroups_Postbit_CloseWithMobiles_explain" version_id="37" version_string="3.1.2"><![CDATA[If your posbit default state is to be "opened" but you still want to close it on mobile devices, select this option.]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_explain" version_id="4" version_string="V.1.3"><![CDATA[Select which usergroups can use (and see) the  toggle function  <b>in postbit</b>. <br /><span style="font-weight:bold">P.S:</span> this addon will also take in account the user  <span style="font-style:italic">secondary usergroupid</span>]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState" version_id="14" version_string="2.1.1"><![CDATA[[ToggleME Postbit Area] Visible Extra Information for these usergroups]]></phrase>
     <phrase title="option_toggleME_Usergroups_Postbit_ForceOpenState_explain" version_id="31" version_string="3.0.0"><![CDATA[This option will make the users extra information visible for the selected usergroups even if you have selected to hide them by default.]]></phrase>
