@@ -7,7 +7,7 @@ class Sedo_ToggleME_Model_GetUserGroups extends XenForo_Model
 		foreach ($this->getDbUserGroups() AS $userGroup)
 		{
 			$userGroups[] = array(
-			'label' => $userGroup['title'],
+			'label' => Sedo_ToggleME_Helper_String::sanitize($userGroup['title']),
 			'value' => $userGroup['user_group_id'],
 			'selected' => in_array($userGroup['user_group_id'], $selectedUserGroupIds)
 			);

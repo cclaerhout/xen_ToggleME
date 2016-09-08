@@ -7,7 +7,7 @@ class Sedo_ToggleME_Model_GetStyles extends XenForo_Model
 		foreach ($this->getDbStyles() AS $style)
 		{
 			$Styles[] = array(
-			'label' => $style['title'],
+			'label' => Sedo_ToggleME_Helper_String::sanitize($style['title']),
 			'value' => $style['style_id'],
 			'selected' => in_array($style['style_id'], $selectedStyleIds)
 			);

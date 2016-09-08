@@ -8,7 +8,7 @@ class Sedo_ToggleME_Model_GetNodes extends XenForo_Model
 		foreach ($this->getDbNodes() AS $node)
 		{
 			$nodes[] = array(
-			'label' => $node['title'],
+			'label' => Sedo_ToggleME_Helper_String::sanitize($node['title']),
 			'value' => $node['node_id'],
 			'selected' => in_array($node['node_id'], $selectedNodesIds)
 			);
