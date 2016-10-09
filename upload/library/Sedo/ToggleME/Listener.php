@@ -129,6 +129,7 @@ class Sedo_ToggleME_Listener
 
 					$finder = new DomXPath($doc);
 					$categoryStripNodes = $finder->query("//*[contains(@class, 'categoryStrip')]");
+					$elementsWithHref =  $finder->query('//*[@href]');
 				}
 				else
 				{
@@ -136,6 +137,9 @@ class Sedo_ToggleME_Listener
 					$dom = new Zend_Dom_Query($readyContent, 'utf-8');
 					$categoryStripNodes = $dom->query('.categoryStrip');
 					$doc = $categoryStripNodes->getDocument();
+
+					$finder = new DomXPath($doc);
+					$elementsWithHref =  $finder->query('//*[@href]');
 				}
 				
 				$doc->removeChild($doc->firstChild); //remove html tag
@@ -146,6 +150,14 @@ class Sedo_ToggleME_Listener
 				}
 				
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
+
+				//Fix invalid url who would have blank characters at the begin or the end of them
+				for ($i=0; $i<$elementsWithHref->length; $i++) {
+					$item =  $elementsWithHref->item($i);
+					if($item->hasAttribute('href')){
+						$item->setAttribute('href', trim($item->getAttribute('href')));
+					}
+				}
 
 				foreach($categoryStripNodes as $categoryStripNode)
 				{
@@ -242,11 +254,12 @@ class Sedo_ToggleME_Listener
 					{
 						foreach($categoryStripNode->childNodes as $categoryChildNode)
 						{
-							if($categoryChildNode->nodeType == 3){
+							if($categoryChildNode->nodeType != XML_ELEMENT_NODE){
 								continue;
 							}
 
 							$checkClass = $categoryChildNode->getAttribute('class');
+
 							if(strpos($checkClass , 'categoryText') !== false)
 							{
 								$hasCategoryText = true;
@@ -395,13 +408,17 @@ class Sedo_ToggleME_Listener
 
 					$finder = new DomXPath($doc);
 					$widgetNodes = $finder->query("//wip/div");
+					$elementsWithHref =  $finder->query('//*[@href]');					
 				}
 				else
 				{
 					$readyContent = self::beforeLoadHtml($contents);
 					$dom = new Zend_Dom_Query($readyContent);
 					$widgetNodes = $dom->query('wip > div');
-					$doc = $widgetNodes->getDocument();			
+					$doc = $widgetNodes->getDocument();
+
+					$finder = new DomXPath($doc);
+					$elementsWithHref =  $finder->query('//*[@href]');								
 				}
 
 				$doc->removeChild($doc->firstChild); //remove html tag
@@ -412,6 +429,14 @@ class Sedo_ToggleME_Listener
 				}
 
 				$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child
+
+				//Fix invalid url who would have blank characters at the begin or the end of them
+				for ($i=0; $i<$elementsWithHref->length; $i++) {
+					$item =  $elementsWithHref->item($i);
+					if($item->hasAttribute('href')){
+						$item->setAttribute('href', trim($item->getAttribute('href')));
+					}
+				}
 			
 				foreach($widgetNodes as $widgetNode)
 				{
@@ -565,7 +590,7 @@ class Sedo_ToggleME_Listener
 				}
 				
 				$html = $doc->saveHTML($doc->documentElement);
-				$html = self::afterSaveHtml($html);				
+				$html = self::afterSaveHtml($html);
 				$contents = $html;
 
 				/***
@@ -602,7 +627,6 @@ class Sedo_ToggleME_Listener
 
 		/*Get rid of the body tag: too difficult to do it with the dom...*/
 		$html = preg_replace('#^\s*<wip>(.*)</wip>\s*$#si', '$1', $html);
-
 		return $html;
 	}	
 
